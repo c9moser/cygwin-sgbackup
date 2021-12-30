@@ -5,7 +5,7 @@
 
 
 BACKUPDIR="/backup/`whoami`/SaveGames"
-MAX_BACKUP=10
+MAX_BACKUP=14
 
 
 SGNAME="SaveGames"
@@ -113,12 +113,11 @@ sg_restore() {
 	else
 		for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz | sort -r`; do
 			file="$i"
-			echo FILE: $i
 			break
 		done
 	fi
 	if [ ! $file ]; then
-		echo "No backup for 'SGNAME' found!"
+		echo "No backup for 'SGNAME' found!" >&2
 	else
 		tar -xJvf "$file" -C "$sgroot"
 	fi
@@ -128,7 +127,7 @@ sg_print_help() {
 	echo USAGE
 	echo =====
 	echo "  sgbackup -a"
-	echo "  sgbackup [-c|-d|-D|-f|-r] args ..."
+	echo "  sgbackup [-c|-d|-D|-f|-n|-r] args ..."
 	echo "  sgbackup -h"
 	echo "  sgbackup -l"
 	echo 
@@ -141,6 +140,7 @@ sg_print_help() {
 	echo "  -f        Final backup of save games"
 	echo "  -h        Print help"
 	echo "  -l        List installed save games"
+	echo "  -n        Show full name of the game"
 	echo "  -r        Restore latest save-game 'name'"
 	echo
 	echo '${name}.conf VARIABLES'
@@ -153,6 +153,23 @@ sg_print_help() {
 	echo "              saves from '-a' backup." 
 }
 
+sg_print_name() {
+	sgconf="${sg_conf_dir}/${1}.conf"
+	if [ ! -f "${sgconf}" ]; then
+		echo "No configuration for '$1' found!" >&2
+		return
+	fi
+	source "$sgconf"
+	if [ ${#1} -lt 8 ]; then
+		indent="			"
+	elif [ ${#1} -lt 16 ]; then
+		indent="		"
+	else
+		indent="	"
+	fi
+	echo "${1}${indent}${NAME}"
+}
+
 # if no arguments are passed form the command line 
 # print help and exit
 if [ $# -eq 0 ]; then
@@ -160,13 +177,8 @@ if [ $# -eq 0 ]; then
 	exit
 fi
 
-# create backup dir if does not exist
-if [ ! -d "${BACKUPDIR}" ]; then
-	mkdir -p "${BACKUPDIR}"
-fi
-
 # parse args
-args=`getopt acdDrhlf: $*`
+args=`getopt acdDfhln $*`
 set -- $args
 
 while :; do
@@ -205,18 +217,23 @@ while :; do
 			shift
 			exit
 			;;
+		-n)
+			sg_backup_mode="n"
+			shift
+			;;
 		--)
 			shift
 			break
 			;;
 		*)
-			echo "Unknown flag $1"
+			echo "Unknown flag $1" >&2
 			exit 1
 			;;
 	
 	esac
 done
 
+# create $BACKUPDIR if it does not exist
 if [ ! -d "${BACKUPDIR}" ]; then
 	mkdir -p "${BACKUPDIR}"
 fi
@@ -236,14 +253,14 @@ case $sg_backup_mode in
 		;;
 	c)
 		if [ $# -eq 0 ]; then
-			echo "MISSING ARGUMENTS!"
+			echo "MISSING ARGUMENTS!" >&2
 			sg_print_help
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
 			conf="${sg_conf_dir}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
-				echo "'${1}.conf' not found!"
+				echo "'${1}.conf' not found!" >&2
 				shift
 				continue
 			fi
@@ -254,14 +271,14 @@ case $sg_backup_mode in
 		;;
 	d)
 		if [ $# -eq 0 ]; then
-			echo "MISSING ARGUMENTS!"
+			echo "MISSING ARGUMENTS!" >&2
 			sg_print_help
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
 			conf="${sg_conf_dir}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
-				echo "'${1}.conf' not found!"
+				echo "'${1}.conf' not found!" >&2
 				shift
 				continue
 			fi
@@ -273,14 +290,14 @@ case $sg_backup_mode in
 		;;
 	D)
 		if [ $# -eq 0 ]; then
-			echo "MISSING ARGUMENTS!"
+			echo "MISSING ARGUMENTS!" >&2
 			sg_print_help
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
 			conf="${sg_conf_dir}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
-				echo "'${1}.conf' not found!"
+				echo "'${1}.conf' not found!" >&2
 				shift
 				continue
 			fi
@@ -291,14 +308,14 @@ case $sg_backup_mode in
 		;;
 	f)
 		if [ $# -eq 0 ]; then
-			echo "MISSING ARGUMENTS!"
+			echo "MISSING ARGUMENTS!" >&2
 			sg_print_help
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
 			conf="${sg_conf_dir}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
-				echo "'${1}.conf' not found!"
+				echo "'${1}.conf' not found!" >&2
 				shift
 				continue
 			fi
@@ -307,16 +324,27 @@ case $sg_backup_mode in
 			shift
 		done
 		;;
+	n)
+		if [ $# -eq 0 ]; then
+			echo "MISSING ARGUMENTS!" >&2
+			sg_print_help
+			exit 1
+		fi
+		while [ $# -gt 0 ]; do
+			sg_print_name "$1"
+			shift
+		done
+		;;
 	r)
 		if [ $# -eq 0 ]; then
-			echo "MISSING ARGUMENTS!"
+			echo "MISSING ARGUMENTS!" >&2
 			sg_print_help
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
 			conf="${sg_conf_dir}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
-				echo "'${1}.conf not found!"
+				echo "'${1}.conf not found!" >&2
 				shift
 				continue
 			fi
@@ -326,6 +354,8 @@ case $sg_backup_mode in
 		done
 		;;
 	*)
-		echo UNKNOWN BACKUP MODE
+		echo "UNKNOWN BACKUP MODE!" >&2
+		exit 1
+		;;
 esac
 

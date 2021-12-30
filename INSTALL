@@ -3,7 +3,7 @@ INSTALL
 
   Copy the 'sgbackup' file and the 'sgbackup.config' directory in a directory
   in your $PATH (e.g. /usr/local/bin) and remove the sgbackup.conf files for 
-  games you dont have. 'sgbackup -l' lists all games by name.
+  games you dont own. 'sgbackup -l' lists all games by name.
   Edit the sgbackup file and set the BACKUPDIR and the MAX_BACKUP variables 
   according to your needs.
   The BACKUPDIR variable points to the location where you want to keep your
