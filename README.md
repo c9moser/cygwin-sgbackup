@@ -4,6 +4,7 @@ Requirements:
   cygwin  from http://cygwin.org
   
   cygwin-packages by category:
-    * base/tar
-    * base/sed
-    * archivers/xz
+    * Base/tar
+    * Base/sed
+    * archivers/xz - for compression
+    * Admin/cron (optional) - for running the backup-script periodically
