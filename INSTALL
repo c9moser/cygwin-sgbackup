@@ -1,0 +1,33 @@
+INSTALL
+=======
+
+  Copy the 'sgbackup' file and the 'sgbackup.config' directory in a directory
+  in your $PATH (e.g. /usr/local/bin) and remove the sgbackup.conf files for 
+  games you dont have. 'sgbackup -l' lists all games by name.
+  Edit the sgbackup file and set the BACKUPDIR and the MAX_BACKUP variables 
+  according to your needs.
+  The BACKUPDIR variable points to the location where you want to keep your
+  backups.
+  The MAX_BACKUP variable sets the maximum number of backups to keep. Older
+  backups are autmatically removed.
+
+
+GAME INSTALL
+============
+  To install new games for backup you need to write your own 
+  ${game_short}.conf files. This files are sourced by 'sgbackup'.
+  The file contains 5 shell variables. Four of them are mandatory.
+    * NAME       Full name of the game.
+    * SGNAME     short name of the game for use in backup files.
+                 !!! It should not contain any whitespace !!!
+                 Use underscores '_' instead of space.
+    * SGROOT     Root directory of the save game folder.
+                 (e.g. "`cygpath \"$USERPROFILE\"`" for users home directory
+                 or "`cygpath -O`" for users Documents direcotry)
+                 The tar program uses this as base path. 
+                 'tar $ARGS -C $SGROOT $SGDIR'
+    * SGDIR      The directory to backup.
+    * SG_NO_AUTO [OPTIONAL] Set this bariable to "YES" if you want
+                 to exclude the game from -a backups.
+                 It will automatically set when sgbackup is run with 
+                 the -f flag.
