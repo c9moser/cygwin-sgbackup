@@ -1,0 +1,327 @@
+#!/bin/sh
+
+# (C) 2021, Christian Moser
+# License: Public Domain
+
+SGNAME="SaveGames"
+SGROOT="`cygpath \"$USERPROFILE\"`"
+SGDIR="Saved Games"
+
+BACKUPDIR="/backup/`whoami`/SaveGames"
+MAX_BACKUP=10
+
+sg_conf_dir="${0}.config"
+sg_backup_mode="c"
+
+sg_backup() {
+	sgname="$1"
+	sgroot="$2"
+	sgdir="$3"
+	
+	echo "----> Backing Up: \'$sgname\' <----"
+	
+	if [ ! -d "${BACKUPDIR}/${sgname}" ]; then
+		mkdir "${BACKUPDIR}/${sgname}"
+	fi
+	file="${BACKUPDIR}/${sgname}/${sgname}.`date +%Y%m%d-%H%M%S`.tar.xz"
+	tar -cJvf "$file" -C "$sgroot" "$sgdir"
+
+	count=0
+	for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz`; do
+		count=$(($count + 1))
+		if [ $count -gt $MAX_BACKUP ]; then
+			rm "$i"
+		fi
+	done
+}
+
+sg_final_backup() {
+	conf="$1"
+	sgname="$2"
+	sgroot="$3"
+	sgdir="$4"
+	file="${BACKUPDIR}/${sgname}.tar.xz"
+
+	echo "----> Backing up '${sgname}' <----"
+
+	tar -cJvf "$file" -C "$sgroot" "$sgdir"
+
+	if [ "x`cat ${conf} | grep SG_NO_AUTO`" = "x" ]; then
+		echo 'SG_NO_AUTO="YES"' >> $conf
+	elif [ 'SG_NO_AUTO="YES"' = "`cat ${conf} | grep SG_NO_AUTO`" ];then
+		echo "SG_NO_AUTO already configured!"
+	elif [ 'SG_NO_AUTO="NO"' = "`cat ${conf} | grep SG_NO_AUTO`" ]; then
+		sed -e s/'SG_NO_AUTO="NO"'/'SG_NO_AUTO="YES"'/ >> "${conf}.tmp"
+		rm -v "$conf"
+		mv -v "${conf}.tmp" "$conf"
+	else
+		echo 'SG_NO_AUTO="YES"' >> "$conf"
+	fi
+}
+
+sg_delete_backups() {
+	sgname="$1"
+
+	echo "----> Deleting Savegame Backups '${sgname}' <----"
+
+	for i in "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz; do
+		rm -v "$i"
+	done
+}
+
+sg_delete_savegames() {
+	sgname="$1"
+	sgroot="$1"
+	sgdir="$2"
+
+	echo "----> Deleting Savegames '${sgname}' <----"
+
+	rm -r "${sgroot}/${sgdir}/*"
+}
+
+sg_list() {
+	for i in "${sg_conf_dir}"/*.conf; do
+		conf=${i#${sg_conf_dir}/}
+		sgname="${conf%.conf}"
+		NAME=""
+		source "$i"
+		if [ "x$NAME" = "x" ]; then
+			NAME="$SGNAME"
+		fi
+		if [ ${#sgname} -lt 8 ]; then
+			indent="			"
+		elif [ ${#sgname} -lt 16 ]; then
+			indent="		"
+		else
+			indent="	"
+		fi
+
+		echo "${sgname}${indent}${NAME}"
+	done
+}
+
+sg_restore() {
+	sgname=$1
+	sgroot=$2
+
+	if [ -f "${BACKUPDIR}/${sgname}.tar.xz" ]; then
+		file="${BACKUPDIR}/${sgname}.tar.xz"
+	else
+		for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz | sort -r`; do
+			file="$i"
+			echo FILE: $i
+			break
+		done
+	fi
+	if [ ! $file ]; then
+		echo "No backup for 'SGNAME' found!"
+	else
+		tar -xJvf "$file" -C "$sgroot"
+	fi
+}
+
+sg_print_help() {
+	echo USAGE
+	echo =====
+	echo "  sgbackup -a"
+	echo "  sgbackup [-c|-d|-D|-f|-r] args ..."
+	echo "  sgbackup -h"
+	echo "  sgbackup -l"
+	echo 
+	echo "Description"
+	echo "==========="
+	echo "  -a        Backup all save-games"
+	echo "  -c        Backup save-game [default]"
+	echo "  -d        Delete Save games"
+	echo "  -D        Delete save game backups"
+	echo "  -f        Final backup of save games"
+	echo "  -h        Print help"
+	echo "  -l        List installed save games"
+	echo "  -r        Restore latest save-game 'name'"
+	echo
+	echo '${name}.conf VARIABLES'
+	echo "======================"
+	echo "  NAME        Name of the Game"
+	echo "  SGNAME      Name of the SaveGame file"
+	echo "  SGROOT      Save Games root directory"
+	echo "  SGDIR       Save Games directory"
+	echo "  SG_NO_AUTO  Set to \"YES\" if you want to exclude"
+	echo "              saves from '-a' backup." 
+}
+
+# if no arguments are passed form the command line 
+# print help and exit
+if [ $# -eq 0 ]; then
+	sg_print_help
+	exit
+fi
+
+# create backup dir if does not exist
+if [ ! -d "${BACKUPDIR}" ]; then
+	mkdir -p "${BACKUPDIR}"
+fi
+
+# parse args
+args=`getopt acdDrhlf: $*`
+set -- $args
+
+while :; do
+	case $1 in
+		-a)
+			sg_backup_mode="a"
+			shift
+			;;
+		-c)
+			sg_backup_mode="c"
+			shift
+			;;
+		-d) 
+			sg_backup_mode="d"
+			shift
+			;;
+		-D)
+			sg_backup_mode="D"
+			shift
+			;;
+		-r)
+			sg_backup_mode="r"
+			shift
+			;;
+		-f)
+			sg_backup_mode="f"
+			shift
+			;;
+		-h)
+			sg_print_help
+			shift
+			exit
+			;;
+		-l)
+			sg_list
+			shift
+			exit
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			echo "Unknown flag $1"
+			exit 1
+			;;
+	
+	esac
+done
+
+if [ ! -d "${BACKUPDIR}" ]; then
+	mkdir -p "${BACKUPDIR}"
+fi
+
+case $sg_backup_mode in
+	a)
+		for i in "${sg_conf_dir}"/*.conf; do
+			SG_NO_AUTO="NO"
+			source "$i"
+			if [ "$SG_NO_AUTO" = "YES" ]; then
+				continue
+			else
+				sg_backup "$SGNAME" "$SGROOT" "$SGDIR"
+			fi
+		done
+		exit
+		;;
+	c)
+		if [ $# -eq 0 ]; then
+			echo "MISSING ARGUMENTS!"
+			sg_print_help
+			exit 1
+		fi
+		while [ $# -gt 0 ]; do
+			conf="${sg_conf_dir}/${1}.conf"
+			if [ ! -f "${conf}" ]; then
+				echo "'${1}.conf' not found!"
+				shift
+				continue
+			fi
+			source "${conf}"
+			sg_backup "$SGNAME" "$SGROOT" "$SGDIR"
+			shift
+		done
+		;;
+	d)
+		if [ $# -eq 0 ]; then
+			echo "MISSING ARGUMENTS!"
+			sg_print_help
+			exit 1
+		fi
+		while [ $# -gt 0 ]; do
+			conf="${sg_conf_dir}/${1}.conf"
+			if [ ! -f "${conf}" ]; then
+				echo "'${1}.conf' not found!"
+				shift
+				continue
+			fi
+			source "${conf}"
+			sg_delete_savegames "$SGNAME" "$SGROOT" "$SGDIR"
+			shift
+			
+		done
+		;;
+	D)
+		if [ $# -eq 0 ]; then
+			echo "MISSING ARGUMENTS!"
+			sg_print_help
+			exit 1
+		fi
+		while [ $# -gt 0 ]; do
+			conf="${sg_conf_dir}/${1}.conf"
+			if [ ! -f "${conf}" ]; then
+				echo "'${1}.conf' not found!"
+				shift
+				continue
+			fi
+			source "${conf}"
+			sg_delete_backups "$SGNAME"
+			shift
+		done
+		;;
+	f)
+		if [ $# -eq 0 ]; then
+			echo "MISSING ARGUMENTS!"
+			sg_print_help
+			exit 1
+		fi
+		while [ $# -gt 0 ]; do
+			conf="${sg_conf_dir}/${1}.conf"
+			if [ ! -f "${conf}" ]; then
+				echo "'${1}.conf' not found!"
+				shift
+				continue
+			fi
+			source "$conf"
+			sg_final_backup "$conf" "$SGNAME" "$SGROOT" "$SGDIR"
+			shift
+		done
+		;;
+	r)
+		if [ $# -eq 0 ]; then
+			echo "MISSING ARGUMENTS!"
+			sg_print_help
+			exit 1
+		fi
+		while [ $# -gt 0 ]; do
+			conf="${sg_conf_dir}/${1}.conf"
+			if [ ! -f "${conf}" ]; then
+				echo "'${1}.conf not found!"
+				shift
+				continue
+			fi
+			source "$conf"
+			sg_restore "$SGNAME" "$SGROOT"
+			shift
+		done
+		;;
+	*)
+		echo UNKNOWN BACKUP MODE
+esac
+
