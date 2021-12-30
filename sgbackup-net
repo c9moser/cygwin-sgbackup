@@ -1,4 +1,0 @@
-#!/bin/sh
-
-BACKUPDIR="/backup/`whoami`/SaveGames"
-
