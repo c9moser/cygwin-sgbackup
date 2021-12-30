@@ -9,7 +9,7 @@ INSTALL
   The BACKUPDIR variable points to the location where you want to keep your
   backups.
   The MAX_BACKUP variable sets the maximum number of backups to keep. Older
-  backups are autmatically removed.
+  backups are autmatically removed. Set it to 0 for infinite backups.
 
 
 GAME INSTALL

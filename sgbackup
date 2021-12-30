@@ -3,12 +3,14 @@
 # (C) 2021, Christian Moser
 # License: Public Domain
 
-SGNAME="SaveGames"
-SGROOT="`cygpath \"$USERPROFILE\"`"
-SGDIR="Saved Games"
 
 BACKUPDIR="/backup/`whoami`/SaveGames"
 MAX_BACKUP=10
+
+
+SGNAME="SaveGames"
+SGROOT="`cygpath \"$USERPROFILE\"`"
+SGDIR="Saved Games"
 
 sg_conf_dir="${0}.config"
 sg_backup_mode="c"
@@ -27,12 +29,14 @@ sg_backup() {
 	tar -cJvf "$file" -C "$sgroot" "$sgdir"
 
 	count=0
-	for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz`; do
-		count=$(($count + 1))
-		if [ $count -gt $MAX_BACKUP ]; then
-			rm "$i"
-		fi
-	done
+	if [ $MAX_BACKUP -gt 0 ]; then
+		for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz`; do
+			count=$(($count + 1))
+			if [ $count -gt $MAX_BACKUP ]; then
+				rm "$i"
+			fi
+		done
+	fi
 }
 
 sg_final_backup() {
