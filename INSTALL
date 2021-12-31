@@ -10,6 +10,10 @@ INSTALL
   backups.
   The MAX_BACKUP variable sets the maximum number of backups to keep. Older
   backups are autmatically removed. Set it to 0 for infinite backups.
+  
+  You can also specify 'BACKUPDIR' and 'MAX_BACKUP' variables in a global
+  configuration file in '/etc/sgbackup.conf' or '/usr/local/etc/sgbackup.conf'.
+  Users can put their local configuration in '${HOME}/.sgbackup.conf'.
 
 
 GAME INSTALL

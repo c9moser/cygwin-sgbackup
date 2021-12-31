@@ -4,13 +4,21 @@
 # License: Public Domain
 
 
-BACKUPDIR="/backup/`whoami`/SaveGames"
+BACKUPDIR="${HOME}/backup/SaveGames"
 MAX_BACKUP=14
 
+# LOAD configuration files
+if [ -f /etc/sgbackup.conf ]; then
+	source /etc/sgbackup.conf
+fi
 
-SGNAME="SaveGames"
-SGROOT="`cygpath \"$USERPROFILE\"`"
-SGDIR="Saved Games"
+if [ -f /usr/local/etc/sgbackup.conf ]; then
+	source /usr/local/etc/sgbackup.conf
+fi
+
+if [ -f "${HOME}/.sgbackup.conf" ]; then
+	source "${HOME}/.sgbackup.conf"
+fi
 
 sg_conf_dir="${0}.config"
 sg_backup_mode="c"
@@ -81,7 +89,7 @@ sg_delete_savegames() {
 
 	echo "----> Deleting Savegames '${sgname}' <----"
 
-	rm -r "${sgroot}/${sgdir}/*"
+	rm -rv "${sgroot}/${sgdir}/*"
 }
 
 sg_list() {
