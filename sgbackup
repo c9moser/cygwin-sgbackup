@@ -188,6 +188,10 @@ fi
 
 # parse args
 args=`getopt acdDfhln $*`
+if [ $? -ne 0 ]; then
+	sg_print_help
+	exit 1
+fi
 set -- $args
 
 while :; do
