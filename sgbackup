@@ -70,6 +70,7 @@ sg_delete_backups() {
 
 	for i in "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz; do
 		rm -v "$i"
+		rmdir -v ${BACKUPDIR}/${sgname}
 	done
 }
 
