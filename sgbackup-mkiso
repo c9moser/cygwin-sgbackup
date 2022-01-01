@@ -1,0 +1,100 @@
+#!/bin/sh
+
+SG_ROOT_DIR=${0%/sgbackup-mkiso}
+
+BACKUPDIR="${HOME}/backup/SaveGames"
+SG_ISO_TEMP="/tmp/`whoami`.sgbackup.`date +%Y%m%d`"
+SG_ISO_DIR="SaveGames"
+SG_ISO_FILE="/tmp/`whoami`.sgbackup.`date +%Y%m%d`.iso"
+
+sg_conf_dir="/usr/local/bin/sgbackup.config"
+SG_SCRIPTS_DIR="${SG_ROOT_DIR}/sgbackup.scripts"
+
+# Check for configuration
+if [ -f /etc/sgbackup.conf ]; then
+	source /etc/sgbackup.conf
+fi
+
+if [ -f /usr/local/etc/sgbackup.conf ]; then
+	source /usr/local/etc/sgbackup.conf
+fi
+
+if [ -f "${HOME}/.sgbackup.conf" ]; then
+	source "${HOME}/.sgbackup.conf"
+fi
+
+sg_iso_conf_dir="${SG_ISO_TEMP}/sgconf"
+
+sg_print_help() {
+	echo "USAGE"
+	echo "====="
+	echo "  sgbackup-mkiso -h"
+	echo "  sgbackup [-o file]"
+	echo ""
+	echo "DESCRIPTION"
+	echo "==========="
+	echo "  -h       print help"
+	echo "  -o file  output to file"
+}
+
+# parse options
+args=`getopt ho: $*`
+if [ $? -ne 0 ]; then
+	sg_print_help
+	exit 1
+fi
+set -- $args
+
+while :; do
+	case $1 in
+		-h)
+			sg_print_help
+			shift
+			exit
+			;;
+		-o)
+			SG_ISO_FILE="$2"
+			shift;shift
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			echo "UNKNOWN OPTION $1" >&2
+			sg_print_help
+			exit 1
+			;;
+	esac
+done
+
+
+if [ ! -d "${SG_ISO_TEMP}/${SG_ISO_DIR}" ]; then
+	mkdir -pv "${SG_ISO_TEMP}/${SG_ISO_DIR}"
+fi
+
+if [ ! -d "${sg_iso_conf_dir}" ]; then
+	mkdir -pv "${sg_iso_conf_dir}"
+fi
+
+for i in ${sg_conf_dir}/*.conf; do
+	source "$i"
+	if [ -f "${BACKUPDIR}/${SGNAME}.tar.xz" ]; then
+		 cp -v "${BACKUPDIR}/${SGNAME}.tar.xz" "${SG_ISO_TEMP}/${SG_ISO_DIR}/${SGNAME}.tar.xz" \
+			 && cp -v "${i}" "${sg_iso_conf_dir}/${i#${sg_conf_dir}/}"
+	else
+		for x in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
+			if [ -f ${x} ]; then
+				cp -v "${x}" "${SG_ISO_TEMP}/${SG_ISO_DIR}/${SGNAME}.tar.xz" \
+				       && cp -v "${i}" "${sg_iso_conf_dir}/${i#${sg_conf_dir}/}"
+				break
+			fi
+		done
+	fi
+done
+cp -v "${SG_SCRIPTS_DIR}/sgrestore.sh" "${SG_ISO_TEMP}/sgrestore.sh" \
+	&& chmod -v ugo+rx "${SG_ISO_TEMP}/sgrestore.sh"
+
+mkisofs -J -R -l -udf -iso-level 4 -o "${SG_ISO_FILE}" "${SG_ISO_TEMP}"
+
+rm -Rv ${SG_ISO_TEMP}

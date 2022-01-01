@@ -89,7 +89,7 @@ sg_delete_savegames() {
 
 	echo "----> Deleting Savegames '${sgname}' <----"
 
-	rm -rv "${sgroot}/${sgdir}/*"
+	rm -rv "${sgroot}/${sgdir}"/*
 }
 
 sg_list() {
