@@ -6,6 +6,7 @@
 
 BACKUPDIR="${HOME}/backup/SaveGames"
 MAX_BACKUP=14
+sg_conf_dir="${0}.config"
 
 # LOAD configuration files
 if [ -f /etc/sgbackup.conf ]; then
@@ -20,7 +21,6 @@ if [ -f "${HOME}/.sgbackup.conf" ]; then
 	source "${HOME}/.sgbackup.conf"
 fi
 
-sg_conf_dir="${0}.config"
 sg_backup_mode="c"
 
 sg_backup() {
