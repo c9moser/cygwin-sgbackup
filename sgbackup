@@ -84,8 +84,8 @@ sg_delete_backups() {
 
 sg_delete_savegames() {
 	sgname="$1"
-	sgroot="$1"
-	sgdir="$2"
+	sgroot="$2"
+	sgdir="$3"
 
 	echo "----> Deleting Savegames '${sgname}' <----"
 
