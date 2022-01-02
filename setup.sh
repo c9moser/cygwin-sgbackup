@@ -54,6 +54,7 @@ cp -v "${INSTALLROOT}/sgbackup.scripts/"* "${SCRIPTDIR}/"
 
 echo ""
 echo "Do you want to install \${game}.conf files? [y/n/a]"
+read installconf
 
 echo "\$installconf: $installconf" 
 
