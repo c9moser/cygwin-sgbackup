@@ -8,7 +8,7 @@ SG_ISO_DIR="SaveGames"
 SG_ISO_FILE="/tmp/`whoami`.sgbackup.`date +%Y%m%d`.iso"
 
 
-sg_conf_dir="${0%/sgbackup.config}"
+SG_CONF_DIR="${0%/sgbackup.config}"
 SG_SCRIPTS_DIR="${SG_ROOT_DIR}/sgbackup.scripts"
 
 # Check for configuration
@@ -78,16 +78,16 @@ if [ ! -d "${sg_iso_conf_dir}" ]; then
 	mkdir -pv "${sg_iso_conf_dir}"
 fi
 
-for i in ${sg_conf_dir}/*.conf; do
+for i in ${SG_CONF_DIR}/*.conf; do
 	source "$i"
 	if [ -f "${BACKUPDIR}/${SGNAME}.tar.xz" ]; then
 		 cp -v "${BACKUPDIR}/${SGNAME}.tar.xz" "${SG_ISO_TEMP}/${SG_ISO_DIR}/${SGNAME}.tar.xz" \
-			 && cp -v "${i}" "${sg_iso_conf_dir}/${i#${sg_conf_dir}/}"
+			 && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
 	else
 		for x in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
 			if [ -f ${x} ]; then
 				cp -v "${x}" "${SG_ISO_TEMP}/${SG_ISO_DIR}/${SGNAME}.tar.xz" \
-				       && cp -v "${i}" "${sg_iso_conf_dir}/${i#${sg_conf_dir}/}"
+				       && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
 				break
 			fi
 		done

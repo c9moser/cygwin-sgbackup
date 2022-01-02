@@ -6,7 +6,7 @@
 
 BACKUPDIR="${HOME}/backup/SaveGames"
 MAX_BACKUP=14
-sg_conf_dir="${0}.config"
+SG_CONF_DIR="${0}.config"
 
 # LOAD configuration files
 if [ -f /etc/sgbackup.conf ]; then
@@ -93,8 +93,8 @@ sg_delete_savegames() {
 }
 
 sg_list() {
-	for i in "${sg_conf_dir}"/*.conf; do
-		conf=${i#${sg_conf_dir}/}
+	for i in "${SG_CONF_DIR}"/*.conf; do
+		conf=${i#${SG_CONF_DIR}/}
 		sgname="${conf%.conf}"
 		NAME=""
 		source "$i"
@@ -105,8 +105,10 @@ sg_list() {
 			indent="			"
 		elif [ ${#sgname} -lt 16 ]; then
 			indent="		"
-		else
+		elif [ ${#sgname} -lt 24 ]; then
 			indent="	"
+		else
+			indent=" "
 		fi
 
 		echo "${sgname}${indent}${NAME}"
@@ -163,7 +165,7 @@ sg_print_help() {
 }
 
 sg_print_name() {
-	sgconf="${sg_conf_dir}/${1}.conf"
+	sgconf="${SG_CONF_DIR}/${1}.conf"
 	if [ ! -f "${sgconf}" ]; then
 		echo "No configuration for '$1' found!" >&2
 		return
@@ -173,8 +175,10 @@ sg_print_name() {
 		indent="			"
 	elif [ ${#1} -lt 16 ]; then
 		indent="		"
-	else
+	elif [ ${#1} -lt 24 ]; then
 		indent="	"
+	else
+		indent=" "
 	fi
 	echo "${1}${indent}${NAME}"
 }
@@ -253,7 +257,7 @@ fi
 
 case $sg_backup_mode in
 	a)
-		for i in "${sg_conf_dir}"/*.conf; do
+		for i in "${SG_CONF_DIR}"/*.conf; do
 			SG_NO_AUTO="NO"
 			source "$i"
 			if [ "$SG_NO_AUTO" = "YES" ]; then
@@ -271,7 +275,7 @@ case $sg_backup_mode in
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
-			conf="${sg_conf_dir}/${1}.conf"
+			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
 				echo "'${1}.conf' not found!" >&2
 				shift
@@ -289,7 +293,7 @@ case $sg_backup_mode in
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
-			conf="${sg_conf_dir}/${1}.conf"
+			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
 				echo "'${1}.conf' not found!" >&2
 				shift
@@ -308,7 +312,7 @@ case $sg_backup_mode in
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
-			conf="${sg_conf_dir}/${1}.conf"
+			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
 				echo "'${1}.conf' not found!" >&2
 				shift
@@ -326,7 +330,7 @@ case $sg_backup_mode in
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
-			conf="${sg_conf_dir}/${1}.conf"
+			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
 				echo "'${1}.conf' not found!" >&2
 				shift
@@ -355,7 +359,7 @@ case $sg_backup_mode in
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
-			conf="${sg_conf_dir}/${1}.conf"
+			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
 				echo "'${1}.conf not found!" >&2
 				shift
