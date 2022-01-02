@@ -11,3 +11,4 @@ cygwin-packages by category:
 * Base/sed
 * archivers/xz - for compression
 * Admin/cron (optional) - for running the backup-script periodically
+* Utils/mkisofs - for running sgbackup-mkiso

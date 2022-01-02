@@ -28,7 +28,7 @@ sg_backup() {
 	sgroot="$2"
 	sgdir="$3"
 	
-	echo "----> Backing Up: \'$sgname\' <----"
+	echo "----> Backing Up: '${sgname}' <----"
 	
 	if [ ! -d "${BACKUPDIR}/${sgname}" ]; then
 		mkdir "${BACKUPDIR}/${sgname}"
@@ -187,7 +187,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # parse args
-args=`getopt acdDfhln $*`
+args=`getopt acdDfhlnr $*`
 if [ $? -ne 0 ]; then
 	sg_print_help
 	exit 1
