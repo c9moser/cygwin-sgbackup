@@ -1,9 +1,10 @@
 INSTALL
 =======
 
-  Copy the 'sgbackup' file and the 'sgbackup.config' directory in a directory
-  in your $PATH (e.g. /usr/local/bin) and remove the sgbackup.conf files for 
-  games you dont own. 'sgbackup -l' lists all games by name.
+  Run 'setup.sh' to install the shell scripts to /usr/local or your 
+  home-directory. When installing to your home don't forget to add
+  '${HOME}/bin' to your PATH.
+
   Edit the sgbackup file and set the BACKUPDIR and the MAX_BACKUP variables 
   according to your needs.
   The BACKUPDIR variable points to the location where you want to keep your
