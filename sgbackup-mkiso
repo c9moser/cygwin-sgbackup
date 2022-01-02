@@ -6,7 +6,7 @@ BACKUPDIR="${HOME}/backup/SaveGames"
 SG_ISO_TEMP="/tmp/`whoami`.sgbackup.`date +%Y%m%d`"
 SG_ISO_DIR="SaveGames"
 SG_ISO_FILE="/tmp/`whoami`.sgbackup.`date +%Y%m%d`.iso"
-
+SG_ISO_NAME="SAVEGAMES"
 
 SG_CONF_DIR="${0%/sgbackup.config}"
 SG_SCRIPTS_DIR="${SG_ROOT_DIR}/sgbackup.scripts"
@@ -85,7 +85,7 @@ for i in ${SG_CONF_DIR}/*.conf; do
 			 && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
 	else
 		for x in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
-			if [ -f ${x} ]; then
+			if [ -f "${x}" ]; then
 				cp -v "${x}" "${SG_ISO_TEMP}/${SG_ISO_DIR}/${SGNAME}.tar.xz" \
 				       && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
 				break
@@ -96,6 +96,6 @@ done
 cp -v "${SG_SCRIPTS_DIR}/sgrestore.sh" "${SG_ISO_TEMP}/sgrestore.sh" \
 	&& chmod -v ugo+rx "${SG_ISO_TEMP}/sgrestore.sh"
 
-mkisofs -J -R -l -udf -iso-level 4 -o "${SG_ISO_FILE}" "${SG_ISO_TEMP}"
+mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG_ISO_TEMP}"
 
 rm -Rv ${SG_ISO_TEMP}
