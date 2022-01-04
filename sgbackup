@@ -22,6 +22,8 @@ if [ -f "${HOME}/.sgbackup.conf" ]; then
 fi
 
 sg_backup_mode="c"
+sg_start_datetime="`date \"+%d.%m.%Y at %H:%M:%S\"`"
+sg_start="`date +%s`"
 
 sg_backup() {
 	sgname="$1"
@@ -137,7 +139,7 @@ sg_restore() {
 sg_print_help() {
 	echo USAGE
 	echo =====
-	echo "  sgbackup -a"
+	echo "  sgbackup [-a|-r]"
 	echo "  sgbackup [-c|-d|-D|-f|-n|-r] args ..."
 	echo "  sgbackup -h"
 	echo "  sgbackup -l"
@@ -152,7 +154,8 @@ sg_print_help() {
 	echo "  -h        Print help"
 	echo "  -l        List installed save games"
 	echo "  -n        Show full name of the game"
-	echo "  -r        Restore latest save-game 'name'"
+	echo "  -r        Restore latest save game 'name'"
+	echo "  -R        Restore all save games"
 	echo
 	echo '${name}.conf VARIABLES'
 	echo "======================"
@@ -183,6 +186,18 @@ sg_print_name() {
 	echo "${1}${indent}${NAME}"
 }
 
+sg_runtime() {
+	runtime=$(( `date +%s` - sg_start ))
+	hours=$(( $runtime / 3600 ))
+	minutes=$(( ( $runtime % 3600 ) / 60 ))
+	seconds=$(( ( $runtime % 3600 ) % 60 ))
+
+	[[ ${#hours} -eq 1 ]] && hours="0${hours}"
+	[[ ${#minutes} -eq 1 ]] && minutes="0${minutes}"
+	[[ ${#seconds} -eq 1 ]] && seconds="0${seconds}"
+	echo "'sgbackup' finihsed in ${hours}:${minutes}:${seconds}"
+}
+
 # if no arguments are passed form the command line 
 # print help and exit
 if [ $# -eq 0 ]; then
@@ -191,7 +206,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # parse args
-args=`getopt acdDfhlnr $*`
+args=`getopt acdDfhlnrR $*`
 if [ $? -ne 0 ]; then
 	sg_print_help
 	exit 1
@@ -218,6 +233,10 @@ while :; do
 			;;
 		-r)
 			sg_backup_mode="r"
+			shift
+			;;
+		-R)	
+			sg_backup_modr="R"
 			shift
 			;;
 		-f)
@@ -257,6 +276,7 @@ fi
 
 case $sg_backup_mode in
 	a)
+		echo "Backup started on: $sg_start_datetime."
 		for i in "${SG_CONF_DIR}"/*.conf; do
 			SG_NO_AUTO="NO"
 			source "$i"
@@ -266,6 +286,7 @@ case $sg_backup_mode in
 				sg_backup "$SGNAME" "$SGROOT" "$SGDIR"
 			fi
 		done
+		sg_runtime
 		exit
 		;;
 	c)
@@ -274,6 +295,8 @@ case $sg_backup_mode in
 			sg_print_help
 			exit 1
 		fi
+
+		echo "Backup started on: $sg_start_datetime."
 		while [ $# -gt 0 ]; do
 			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
@@ -285,6 +308,7 @@ case $sg_backup_mode in
 			sg_backup "$SGNAME" "$SGROOT" "$SGDIR"
 			shift
 		done
+		sg_runtime
 		;;
 	d)
 		if [ $# -eq 0 ]; then
@@ -329,6 +353,7 @@ case $sg_backup_mode in
 			sg_print_help
 			exit 1
 		fi
+		echo "Backup started on ${sg_start_datetime}."
 		while [ $# -gt 0 ]; do
 			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
@@ -340,6 +365,7 @@ case $sg_backup_mode in
 			sg_final_backup "$conf" "$SGNAME" "$SGROOT" "$SGDIR"
 			shift
 		done
+		sg_runtime
 		;;
 	n)
 		if [ $# -eq 0 ]; then
@@ -358,6 +384,8 @@ case $sg_backup_mode in
 			sg_print_help
 			exit 1
 		fi
+
+		echo "Restoring savegames started on ${sg_start_datetime}."
 		while [ $# -gt 0 ]; do
 			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
@@ -369,6 +397,16 @@ case $sg_backup_mode in
 			sg_restore "$SGNAME" "$SGROOT"
 			shift
 		done
+		sg_runtime
+		;;
+	R)
+		echo "Restoring all sacegames started on ${sg_start_datetime}."
+		for i in "${SG_CONF_DIR}"/*.conf; do
+			source "${i}"
+			sg_restore "$SGNAME" "$SGROOT"
+		done
+		sg_runtime
+		exit
 		;;
 	*)
 		echo "UNKNOWN BACKUP MODE!" >&2

@@ -4,11 +4,10 @@ SG_ROOT_DIR=${0%/sgbackup-mkiso}
 
 BACKUPDIR="${HOME}/backup/SaveGames"
 SG_ISO_TEMP="/tmp/`whoami`.sgbackup.`date +%Y%m%d`"
-SG_ISO_DIR="SaveGames"
 SG_ISO_FILE="/tmp/`whoami`.sgbackup.`date +%Y%m%d`.iso"
 SG_ISO_NAME="SAVEGAMES"
 
-SG_CONF_DIR="${0%/sgbackup.config}"
+SG_CONF_DIR="${SG_ROOT_DIR}/sgbackup.config"
 SG_SCRIPTS_DIR="${SG_ROOT_DIR}/sgbackup.scripts"
 
 # Check for configuration
@@ -25,6 +24,7 @@ if [ -f "${HOME}/.sgbackup.conf" ]; then
 fi
 
 sg_iso_conf_dir="${SG_ISO_TEMP}/sgconf"
+sg_iso_dir="SaveGames"
 
 sg_print_help() {
 	echo "USAGE"
@@ -70,8 +70,8 @@ while :; do
 done
 
 
-if [ ! -d "${SG_ISO_TEMP}/${SG_ISO_DIR}" ]; then
-	mkdir -pv "${SG_ISO_TEMP}/${SG_ISO_DIR}"
+if [ ! -d "${SG_ISO_TEMP}/${sg_iso_dir}" ]; then
+	mkdir -pv "${SG_ISO_TEMP}/${sg_iso_dir}"
 fi
 
 if [ ! -d "${sg_iso_conf_dir}" ]; then
@@ -81,12 +81,12 @@ fi
 for i in ${SG_CONF_DIR}/*.conf; do
 	source "$i"
 	if [ -f "${BACKUPDIR}/${SGNAME}.tar.xz" ]; then
-		 cp -v "${BACKUPDIR}/${SGNAME}.tar.xz" "${SG_ISO_TEMP}/${SG_ISO_DIR}/${SGNAME}.tar.xz" \
+		 cp -v "${BACKUPDIR}/${SGNAME}.tar.xz" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
 			 && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
 	else
 		for x in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
 			if [ -f "${x}" ]; then
-				cp -v "${x}" "${SG_ISO_TEMP}/${SG_ISO_DIR}/${SGNAME}.tar.xz" \
+				cp -v "${x}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
 				       && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
 				break
 			fi
@@ -97,5 +97,7 @@ cp -v "${SG_SCRIPTS_DIR}/sgrestore.sh" "${SG_ISO_TEMP}/sgrestore.sh" \
 	&& chmod -v ugo+rx "${SG_ISO_TEMP}/sgrestore.sh"
 
 mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG_ISO_TEMP}"
+
+
 
 rm -Rv ${SG_ISO_TEMP}
