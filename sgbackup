@@ -37,10 +37,17 @@ sg_backup() {
 	fi
 	file="${BACKUPDIR}/${sgname}/${sgname}.`date +%Y%m%d-%H%M%S`.tar.xz"
 	tar -cJvf "$file" -C "$sgroot" "$sgdir"
+	pwdir="`pwd`"
+	cd "${BACKUPDIR}/${sgname}"
+	ln -snfv "${file#${BACKUPDIR}/${sgname}/}" "${sgname}.latest.tar.xz"
 
 	count=0
 	if [ $MAX_BACKUP -gt 0 ]; then
-		for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz`; do
+		for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz | sort -r`; do
+			if [ "${file#${BACKUPDIR}/${sgname}/}" = "${sgname}.latest.tar.xz" ]; then
+				continue
+			fi
+
 			count=$(($count + 1))
 			if [ $count -gt $MAX_BACKUP ]; then
 				rm "$i"
@@ -139,7 +146,7 @@ sg_restore() {
 sg_print_help() {
 	echo USAGE
 	echo =====
-	echo "  sgbackup [-a|-r]"
+	echo "  sgbackup [-a|-r|-R]"
 	echo "  sgbackup [-c|-d|-D|-f|-n|-r] args ..."
 	echo "  sgbackup -h"
 	echo "  sgbackup -l"

@@ -83,7 +83,10 @@ for i in ${SG_CONF_DIR}/*.conf; do
 	if [ -f "${BACKUPDIR}/${SGNAME}.tar.xz" ]; then
 		 cp -v "${BACKUPDIR}/${SGNAME}.tar.xz" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
 			 && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
-	else
+  	elif [ -h "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" ]; then
+		cp -vL "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
+	else 
+		
 		for x in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
 			if [ -f "${x}" ]; then
 				cp -v "${x}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
@@ -92,12 +95,14 @@ for i in ${SG_CONF_DIR}/*.conf; do
 			fi
 		done
 	fi
+	#for x in "${BACKUPDIR}/${SGNAME}".*.tar.xz; do
+	#	cp -v "$x" "${SG_ISO_TEMP}/${i#${BACKUPDIR}/}"
+	#done
 done
 cp -v "${SG_SCRIPTS_DIR}/sgrestore.sh" "${SG_ISO_TEMP}/sgrestore.sh" \
 	&& chmod -v ugo+rx "${SG_ISO_TEMP}/sgrestore.sh"
 
 mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG_ISO_TEMP}"
 
-
-
 rm -Rv ${SG_ISO_TEMP}
+
