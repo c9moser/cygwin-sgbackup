@@ -40,6 +40,7 @@ sg_backup() {
 	pwdir="`pwd`"
 	cd "${BACKUPDIR}/${sgname}"
 	ln -snfv "${file#${BACKUPDIR}/${sgname}/}" "${sgname}.latest.tar.xz"
+	cd "$pwdir"
 
 	count=0
 	if [ $MAX_BACKUP -gt 0 ]; then
