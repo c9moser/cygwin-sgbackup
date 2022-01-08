@@ -44,6 +44,10 @@ if [ ! -d "${CONFDIR}" ]; then
 	mkdir -pv "${CONFDIR}"
 fi
 
+if [ -f "${CONF}" ]; then
+	WRITE_CONF="NO"
+fi
+
 cp -v "${INSTALLROOT}/sgbackup" "${BINDIR}/sgbackup"
 cp -v "${INSTALLROOT}/sgbackup-mkiso" "${BINDIR}/sgbackup-mkiso"
 cp -v "${INSTALLROOT}/README.md" "${SHAREDSTATEDIR}/README.md"
@@ -51,6 +55,10 @@ cp -v "${INSTALLROOT}/INSTALL" "${SHAREDSTATEDIR}/INSTALL"
 cp -v "${INSTALLROOT}/LICENSE" "${SHREDSTATEDIR}/LICENSE"
 cp -v "${INSTALLROOT}/sgbackup.scripts/"* "${SCRIPTDIR}/"
 
+if [ "$WRITE_CONF" = "YES" ]; then
+	echo "SG_CONF_DIR=\"${CONFDIR}\"" > "${SGCONF}"
+	echo "SG_SCRIPT_DIR=\"${SCRIPTDIR}\"" >> "${SGCONF}"
+fi
 
 echo ""
 echo "Do you want to install \${game}.conf files? [y/n/a]"
@@ -73,10 +81,5 @@ elif [ "x${installconf}" = "xa" -o x"${installconf}" = "xA" ]; then
 	done
 else
 	cp -v "${INSTALLROOT}/sgbackup.config"/* "${CONFDIR}/"
-fi
-
-if [ "$WRITE_CONF" = "YES" -a ! -f "${SGCONF}" ]; then
-	echo "SG_CONF_DIR=\"${CONFDIR}\"" > "${SGCONF}"
-	echo "SG_SCRIPT_DIR=\"${SCRIPTDIR}\"" >> "${SGCONF}"
 fi
 
