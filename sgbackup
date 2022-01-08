@@ -31,7 +31,7 @@ sg_backup() {
 	sgroot="$3"
 	sgdir="$4"
 	
-	echo "----> Backing Up: '${name}' <----"
+	echo "----> Backing up: \"${name}\" <----"
 	
 	if [ ! -d "${BACKUPDIR}/${sgname}" ]; then
 		mkdir "${BACKUPDIR}/${sgname}"
@@ -60,13 +60,14 @@ sg_backup() {
 }
 
 sg_final_backup() {
-	conf="$1"
-	sgname="$2"
-	sgroot="$3"
-	sgdir="$4"
+	name="$1"
+	conf="$2"
+	sgname="$3"
+	sgroot="$4"
+	sgdir="$5"
 	file="${BACKUPDIR}/${sgname}.tar.xz"
 
-	echo "----> Backing up '${sgname}' <----"
+	echo "----> Backing up: \"${name}\" <----"
 
 	tar -cJvf "$file" -C "$sgroot" "$sgdir"
 
@@ -84,9 +85,10 @@ sg_final_backup() {
 }
 
 sg_delete_backups() {
-	sgname="$1"
+	name="$1"
+	sgname="$2"
 
-	echo "----> Deleting Savegame Backups '${sgname}' <----"
+	echo "----> Deleting Savegame Backups: \"${name}\" <----"
 
 	for i in "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz; do
 		rm -v "$i"
@@ -95,11 +97,12 @@ sg_delete_backups() {
 }
 
 sg_delete_savegames() {
-	sgname="$1"
-	sgroot="$2"
-	sgdir="$3"
+	name="$1"
+	sgname="$2"
+	sgroot="$3"
+	sgdir="$4"
 
-	echo "----> Deleting Savegames '${sgname}' <----"
+	echo "----> Deleting Savegames \"${name}\" <----"
 
 	rm -rv "${sgroot}/${sgdir}"/*
 }
@@ -128,8 +131,9 @@ sg_list() {
 }
 
 sg_restore() {
-	sgname=$1
-	sgroot=$2
+	name="$1"
+	sgname="$2"
+	sgroot="$3"
 
 	if [ -f "${BACKUPDIR}/${sgname}.tar.xz" ]; then
 		file="${BACKUPDIR}/${sgname}.tar.xz"
@@ -142,6 +146,7 @@ sg_restore() {
 	if [ ! $file ]; then
 		echo "No backup for 'SGNAME' found!" >&2
 	else
+		echo "----> Restoring savegames for: \"${name}\" <----"
 		tar -xJvf "$file" -C "$sgroot"
 	fi
 }
@@ -334,7 +339,7 @@ case $sg_backup_mode in
 				continue
 			fi
 			source "${conf}"
-			sg_delete_savegames "$SGNAME" "$SGROOT" "$SGDIR"
+			sg_delete_savegames "$NAME" "$SGNAME" "$SGROOT" "$SGDIR"
 			shift
 			
 		done
@@ -353,7 +358,7 @@ case $sg_backup_mode in
 				continue
 			fi
 			source "${conf}"
-			sg_delete_backups "$SGNAME"
+			sg_delete_backups "$NAME" "$SGNAME"
 			shift
 		done
 		;;
@@ -372,7 +377,7 @@ case $sg_backup_mode in
 				continue
 			fi
 			source "$conf"
-			sg_final_backup "$conf" "$SGNAME" "$SGROOT" "$SGDIR"
+			sg_final_backup "${NAME}" "$conf" "$SGNAME" "$SGROOT" "$SGDIR"
 			shift
 		done
 		sg_runtime
@@ -395,7 +400,7 @@ case $sg_backup_mode in
 			exit 1
 		fi
 
-		echo "Restoring savegames started on ${sg_start_datetime}."
+		echo "Restoring savegames started on: ${sg_start_datetime}"
 		while [ $# -gt 0 ]; do
 			conf="${SG_CONF_DIR}/${1}.conf"
 			if [ ! -f "${conf}" ]; then
@@ -404,16 +409,16 @@ case $sg_backup_mode in
 				continue
 			fi
 			source "$conf"
-			sg_restore "$SGNAME" "$SGROOT"
+			sg_restore "$NAME" "$SGNAME" "$SGROOT"
 			shift
 		done
 		sg_runtime
 		;;
 	R)
-		echo "Restoring all sacegames started on ${sg_start_datetime}."
+		echo "Restoring all savegames started on: ${sg_start_datetime}"
 		for i in "${SG_CONF_DIR}"/*.conf; do
 			source "${i}"
-			sg_restore "$SGNAME" "$SGROOT"
+			sg_restore "$NAME" "$SGNAME" "$SGROOT"
 		done
 		sg_runtime
 		exit
