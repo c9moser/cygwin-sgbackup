@@ -48,13 +48,12 @@ sg_backup() {
 	count=0
 	if [ $MAX_BACKUP -gt 0 ]; then
 		for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz | sort -r`; do
-			if [ "${file#${BACKUPDIR}/${sgname}/}" = "${sgname}.latest.tar.xz" ]; then
-				continue
-			fi
-
-			count=$(($count + 1))
-			if [ $count -gt $MAX_BACKUP ]; then
-				rm "$i"
+			
+			if [ "${i#${BACKUPDIR}/${sgname}/}" != "${sgname}.latest.tar.xz" ]; then
+				count=$(($count + 1))
+				if [ $count -gt $MAX_BACKUP ]; then
+					rm "$i"
+				fi
 			fi
 		done
 	fi
