@@ -26,20 +26,23 @@ sg_start_datetime="`date \"+%d.%m.%Y at %H:%M:%S\"`"
 sg_start="`date +%s`"
 
 sg_backup() {
-	sgname="$1"
-	sgroot="$2"
-	sgdir="$3"
+	name="$1"
+	sgname="$2"
+	sgroot="$3"
+	sgdir="$4"
 	
-	echo "----> Backing Up: '${sgname}' <----"
+	echo "----> Backing Up: '${name}' <----"
 	
 	if [ ! -d "${BACKUPDIR}/${sgname}" ]; then
 		mkdir "${BACKUPDIR}/${sgname}"
 	fi
 	file="${BACKUPDIR}/${sgname}/${sgname}.`date +%Y%m%d-%H%M%S`.tar.xz"
 	tar -cJvf "$file" -C "$sgroot" "$sgdir"
+
 	pwdir="`pwd`"
 	cd "${BACKUPDIR}/${sgname}"
-	ln -snfv "${file#${BACKUPDIR}/${sgname}/}" "${sgname}.latest.tar.xz"
+	latest="${file#${BACKUPDIR}/${sgname}/}"
+	ln -snfv "${latest}" "${sgname}.latest.tar.xz"
 	cd "$pwdir"
 
 	count=0
@@ -291,7 +294,7 @@ case $sg_backup_mode in
 			if [ "$SG_NO_AUTO" = "YES" ]; then
 				continue
 			else
-				sg_backup "$SGNAME" "$SGROOT" "$SGDIR"
+				sg_backup "$NAME" "$SGNAME" "$SGROOT" "$SGDIR"
 			fi
 		done
 		sg_runtime
@@ -313,7 +316,7 @@ case $sg_backup_mode in
 				continue
 			fi
 			source "${conf}"
-			sg_backup "$SGNAME" "$SGROOT" "$SGDIR"
+			sg_backup "$NAME" "$SGNAME" "$SGROOT" "$SGDIR"
 			shift
 		done
 		sg_runtime
