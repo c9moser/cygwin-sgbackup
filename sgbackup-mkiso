@@ -84,7 +84,8 @@ for i in ${SG_CONF_DIR}/*.conf; do
 		 cp -v "${BACKUPDIR}/${SGNAME}.tar.xz" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
 			 && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
   	elif [ -h "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" ]; then
-		cp -vL "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
+		cp -vL "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
+			&& cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
 	else 
 		
 		for x in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
