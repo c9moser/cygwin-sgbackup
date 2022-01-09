@@ -69,7 +69,7 @@ sg_print_help() {
 	echo "  -a     restore all savegames"
 	echo "  -h     print help"
 	echo "  -l     list savegames backups"
-	echo "  -n     show savegame name by \$arg"
+	echo "  -n     show savegame name by argument"
 	echo "  -r     restore savegames by name [default]"
 
 }
