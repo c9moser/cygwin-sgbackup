@@ -8,7 +8,7 @@ SG_ISO_FILE="/tmp/`whoami`.sgbackup.`date +%Y%m%d`.iso"
 SG_ISO_NAME="SAVEGAMES"
 
 SG_CONF_DIR="${SG_ROOT_DIR}/sgbackup.config"
-SG_SCRIPTS_DIR="${SG_ROOT_DIR}/sgbackup.scripts"
+SG_SCRIPT_DIR="${SG_ROOT_DIR}/sgbackup.scripts"
 
 # Check for configuration
 if [ -f /etc/sgbackup.conf ]; then
@@ -99,7 +99,7 @@ for i in ${SG_CONF_DIR}/*.conf; do
 	#	cp -v "$x" "${SG_ISO_TEMP}/${i#${BACKUPDIR}/}"
 	#done
 done
-cp -v "${SG_SCRIPTS_DIR}/sgrestore.sh" "${SG_ISO_TEMP}/sgrestore.sh" \
+cp -v "${SG_SCRIPT_DIR}/sgrestore.sh" "${SG_ISO_TEMP}/sgrestore.sh" \
 	&& chmod -v ugo+rx "${SG_ISO_TEMP}/sgrestore.sh"
 
 mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG_ISO_TEMP}"

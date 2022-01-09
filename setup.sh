@@ -4,7 +4,7 @@ PREFIX="/usr/local"
 BINDIR="${PREFIX}/bin"
 ETCDIR="${PREFIX}/etc"
 SHAREDSTATEDIR="${PREFIX}/share/sgbackup"
-SCRIPTDIR="${SHAREDSTATEDIR}/sgbackup/scripts"
+SCRIPTDIR="${SHAREDSTATEDIR}/scripts"
 CONFIDR="${ETCDIR}/sgbackup.config"
 SGCONF="${ETCDIR}/sgbackup.conf"
 INSTALLROOT="${0%/setup.sh}"
@@ -20,7 +20,7 @@ if [ "x$install" = "xn" -o "x$install" = "xN" -o "x$install" = "xno" ] ; then
 	SHAREDSTATEDIR="${HOME}/.local/share"
 	SCRIPTDIR="${HOME}/bin/sgbackup.scripts"
 	CONFDIR="${BINDIR}/sgbackup.config"
-	CONF="${HOME}/.sgbackup.conf"
+	SGCONF="${HOME}/.sgbackup.conf"
 	WRITE_CONF="NO"
 fi
 
@@ -44,7 +44,7 @@ if [ ! -d "${CONFDIR}" ]; then
 	mkdir -pv "${CONFDIR}"
 fi
 
-if [ -f "${CONF}" ]; then
+if [ -f "${SGCONF}" ]; then
 	WRITE_CONF="NO"
 fi
 
