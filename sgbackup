@@ -344,7 +344,7 @@ while :; do
 			shift
 			;;
 		-R)	
-			sg_backup_modr="R"
+			sg_backup_mode="R"
 			shift
 			;;
 		-f)
