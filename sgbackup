@@ -528,7 +528,7 @@ case $sg_backup_mode in
 			echo "$sgid" >> "$sglist"
 		done
 		for i in "`cat $sglist | sort`"; do
-			sgrestore "$i"
+			sg_restore "$i"
 		done
 		sg_runtime
 		exit
