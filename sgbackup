@@ -60,7 +60,8 @@ sg_backup() {
 			if [ "${i#${BACKUPDIR}/${SGNAME}/}" != "${SGNAME}.latest.tar.xz" ]; then
 				count=$(($count + 1))
 				if [ $count -gt $MAX_BACKUP ]; then
-					rm "$i"
+					rm -v "$i"
+					rm -v "${i}.sha256"
 				fi
 			fi
 		done
@@ -116,48 +117,84 @@ sg_final_backup() {
 }
 
 sg_delete_backups() {
-	name="$1"
-	sgname="$2"
+	sgid="$1"
 
-	echo "----> Deleting Savegame Backups: \"${name}\" <----"
+	if [ -f "${SG_USER_CONF_DIR}/${sgid}.conf" ]; then
+		source ${sgid}.conf
+	elif [ -f "${SG_CONF_DIR}/${sgid}.conf" ]; then
+		source ${sgid}.conf
+	else
+		echo "No configuration found for \"$sgid\"!" >&2
+		return 1
+	fi
 
-	for i in "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz; do
+	echo "----> Deleting Savegame Backups: \"${NAME}\" <----"
+
+	for i in "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz; do
 		rm -v "$i"
-		rmdir -v ${BACKUPDIR}/${sgname}
+		rm -v "${i}.sha256"
+		rmdir -v "${BACKUPDIR}/${SGNAME}"
 	done
 }
 
 sg_delete_savegames() {
-	name="$1"
-	sgname="$2"
-	sgroot="$3"
-	sgdir="$4"
+	sgid="$1"
 
+	if [ -f "${SG_USER_CONF_DIR}/${sgid}.conf" ]; then
+		source "${SG_USER_CONF_DIR}/${sgid}.conf"
+	elif [ -f "${SG_CONF_DIR}/${sgid}.conf" ]; then
+		source "${SG_CONF_DIR}/${sgid}.conf"
+	else
+		echo "No configuration for \"$sgid\" found!" >&2
+		return 1
+	fi
 	echo "----> Deleting Savegames \"${name}\" <----"
 
-	rm -rv "${sgroot}/${sgdir}"/*
+	rm -rv "${SGROOT}/${SGDIR}"/*
 }
 
 sg_list() {
+	sglist="/tmp/`whoami`.sgabckup.lst"
+	if [ -f "$sglist" ]; then
+		rm "$sglist"
+	fi
+	if [ -d "${SG_USER_CONF_DIR}" ]; then
+		for i in "${SG_USER_CONF_DIR}"/*.conf; do
+			conf="${i#${SG_USER_CONF_DIR}/}"
+			sgid=${conf%.conf}
+			echo "$sgid" >> "$sglist"
+		done
+	fi
 	for i in "${SG_CONF_DIR}"/*.conf; do
 		conf=${i#${SG_CONF_DIR}/}
-		sgname="${conf%.conf}"
-		NAME=""
-		source "$i"
-		if [ "x$NAME" = "x" ]; then
-			NAME="$SGNAME"
+		sgid=${conf%.conf}
+
+		if [ "`cat $sglist | grep -x $sgid`" = "$sgid" ]; then
+			continue
 		fi
-		if [ ${#sgname} -lt 8 ]; then
+
+		echo "$sgid" >> "${sglist}"
+	done
+
+	for i in `cat $sglist | sort`; do
+		if [ -f "${SG_USER_CONF_DIR}/${i}.conf" ]; then
+			source "${SG_USER_CONF_DIR}/$i.conf"
+		elif [ -f "${SG_CONF_DIR}/${i}.conf" ]; then
+			source "${SG_CONF_DIR}/${i}.conf"
+		else
+			continue
+		fi
+		
+		if [ ${#i} -lt 8 ]; then
 			indent="			"
-		elif [ ${#sgname} -lt 16 ]; then
+		elif [ ${#i} -lt 16 ]; then
 			indent="		"
-		elif [ ${#sgname} -lt 24 ]; then
+		elif [ ${#i} -lt 24 ]; then
 			indent="	"
 		else
 			indent=" "
 		fi
-
-		echo "${sgname}${indent}${NAME}"
+		echo "${i}${indent}${NAME}"
 	done
 }
 
@@ -410,14 +447,7 @@ case $sg_backup_mode in
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
-			conf="${SG_CONF_DIR}/${1}.conf"
-			if [ ! -f "${conf}" ]; then
-				echo "'${1}.conf' not found!" >&2
-				shift
-				continue
-			fi
-			source "${conf}"
-			sg_delete_backups "$NAME" "$SGNAME"
+			sg_delete_backups "$1" 
 			shift
 		done
 		;;
