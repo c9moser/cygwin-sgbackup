@@ -196,22 +196,47 @@ sg_list() {
 		fi
 		echo "${i}${indent}${NAME}"
 	done
+	rm "${sglist}"
 }
 
 sg_restore() {
-	name="$1"
-	sgname="$2"
-	sgroot="$3"
+	sgid="$1"
 
-	if [ -f "${BACKUPDIR}/${sgname}.tar.xz" ]; then
-		file="${BACKUPDIR}/${sgname}.tar.xz"
+	if [ -f "${SG_USER_CONF_DIR}/${sgid}.conf" ]; then
+		source "${SG_USER_CONF_DIR}/${sgid}.conf"
+	elif [ -f "${SG_CONF_DIR}/${sgid}.conf" ]; then
+		source "${SG_CONF_DIR}/${sgid}.conf"
 	else
-		for i in `ls "${BACKUPDIR}/${sgname}/${sgname}".*.tar.xz | sort -r`; do
+		echo "No configuration for \"${sgid}\" found!" >&2
+		return 1
+	fi
+
+	pwdir="`pwd`"
+	file=""
+
+	if [ -f "${BACKUPDIR}/${SGNAME}.tar.xz" ]; then
+		file="${BACKUPDIR}/${SGNAME}.tar.xz"
+		if [ -f "$file.sha256" ]; then
+			cd "${BACKUPDIR}"
+			shasum -c "$file.sha256" || return 1
+			cd "$pwdir"
+		fi
+	else
+		for i in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
 			file="$i"
+			if [ -f "${file}.sha256" ]; then
+				cd ${BACKUPDIR}/${SGNAME}
+				shasum -c "${file}.sha256" 
+				if [ $? -ne 0 ]; then
+					file=""
+					continue
+				fi
+			cd "$pwdir"
+			fi
 			break
 		done
 	fi
-	if [ ! $file ]; then
+	if [ -z "$file" ]; then
 		echo "No backup for 'SGNAME' found!" >&2
 	else
 		echo "----> Restoring savegames for: \"${name}\" <----"
@@ -428,14 +453,7 @@ case $sg_backup_mode in
 			exit 1
 		fi
 		while [ $# -gt 0 ]; do
-			conf="${SG_CONF_DIR}/${1}.conf"
-			if [ ! -f "${conf}" ]; then
-				echo "'${1}.conf' not found!" >&2
-				shift
-				continue
-			fi
-			source "${conf}"
-			sg_delete_savegames "$NAME" "$SGNAME" "$SGROOT" "$SGDIR"
+			sg_delete_savegames "$1"
 			shift
 			
 		done
@@ -484,23 +502,33 @@ case $sg_backup_mode in
 
 		echo "Restoring savegames started on: ${sg_start_datetime}"
 		while [ $# -gt 0 ]; do
-			conf="${SG_CONF_DIR}/${1}.conf"
-			if [ ! -f "${conf}" ]; then
-				echo "'${1}.conf not found!" >&2
-				shift
-				continue
-			fi
-			source "$conf"
-			sg_restore "$NAME" "$SGNAME" "$SGROOT"
+			sg_restore "$1"
 			shift
 		done
 		sg_runtime
 		;;
 	R)
 		echo "Restoring all savegames started on: ${sg_start_datetime}"
+		sglist="/tmp/`whoami`.sgbackup.lst"
+		if [ -f "$sglist" ]; then
+			rm "$sglist"
+		fi
+
+		for i in "${SG_USER_CONF_DIR}"/*.conf; do
+			conf="${i#${SG_USER_CONF_DIR}/}"
+			sgid="${conf%.conf}"
+			echo "$sgid" >> "$sglist"
+		done
 		for i in "${SG_CONF_DIR}"/*.conf; do
-			source "${i}"
-			sg_restore "$NAME" "$SGNAME" "$SGROOT"
+			conf="${i#${SG_USER_CONF_DIR}/}"
+			sgid="${conf%conf}"
+			if [ "`cat $sglist | grep -x $sgid`" = "$sgid" ]; then
+				continue
+			fi
+			echo "$sgid" >> "$sglist"
+		done
+		for i in "`cat $sglist | sort`"; do
+			sgrestore "$i"
 		done
 		sg_runtime
 		exit
