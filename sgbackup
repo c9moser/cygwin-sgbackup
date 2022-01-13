@@ -1,6 +1,6 @@
 #!/bin/sh
-
-# (C) 2021, Christian Moser
+# Version 0.2.0
+# (C) 2021,2022 Christian Moser
 # License: Public Domain
 
 
@@ -120,9 +120,9 @@ sg_delete_backups() {
 	sgid="$1"
 
 	if [ -f "${SG_USER_CONF_DIR}/${sgid}.conf" ]; then
-		source ${sgid}.conf
+		source "${SG_USER_CONF_DIR}/${sgid}.conf"
 	elif [ -f "${SG_CONF_DIR}/${sgid}.conf" ]; then
-		source ${sgid}.conf
+		source "${SG_CONF_DIR}/${sgid}.conf"
 	else
 		echo "No configuration found for \"$sgid\"!" >&2
 		return 1
@@ -133,8 +133,8 @@ sg_delete_backups() {
 	for i in "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz; do
 		rm -v "$i"
 		rm -v "${i}.sha256"
-		rmdir -v "${BACKUPDIR}/${SGNAME}"
 	done
+	rmdir -v "${BACKUPDIR}/${SGNAME}"
 }
 
 sg_delete_savegames() {
@@ -239,8 +239,8 @@ sg_restore() {
 	if [ -z "$file" ]; then
 		echo "No backup for 'SGNAME' found!" >&2
 	else
-		echo "----> Restoring savegames for: \"${name}\" <----"
-		tar -xJvf "$file" -C "$sgroot"
+		echo "----> Restoring savegames for: \"${NAME}\" <----"
+		tar -xJvf "$file" -C "$SGROOT"
 	fi
 }
 
