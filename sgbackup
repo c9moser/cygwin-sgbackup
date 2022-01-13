@@ -520,14 +520,14 @@ case $sg_backup_mode in
 			echo "$sgid" >> "$sglist"
 		done
 		for i in "${SG_CONF_DIR}"/*.conf; do
-			conf="${i#${SG_USER_CONF_DIR}/}"
-			sgid="${conf%conf}"
+			conf="${i#${SG_CONF_DIR}/}"
+			sgid="${conf%.conf}"
 			if [ "`cat $sglist | grep -x $sgid`" = "$sgid" ]; then
 				continue
 			fi
 			echo "$sgid" >> "$sglist"
 		done
-		for i in "`cat $sglist | sort`"; do
+		for i in `cat $sglist | sort`; do
 			sg_restore "$i"
 		done
 		sg_runtime
