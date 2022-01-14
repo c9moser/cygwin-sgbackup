@@ -64,8 +64,6 @@ echo ""
 echo "Do you want to install \${game}.conf files? [y/n/a]"
 read installconf
 
-echo "\$installconf: $installconf" 
-
 if [ "x${installconf}" = "xn" -o "x${installconf}" = "xN" -o "x${installconf}" = "xno" ]; then
 	exit
 elif [ "x${installconf}" = "xa" -o x"${installconf}" = "xA" ]; then
