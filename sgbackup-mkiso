@@ -199,5 +199,5 @@ cp -v "${SG_SCRIPT_DIR}/sgrestore.sh" "${SG_ISO_TEMP}/sgrestore.sh" \
 mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG_ISO_TEMP}"
 
 rm -v "${SG_LIST}"
-#rm -Rv "${SG_ISO_TEMP}"
+rm -Rv "${SG_ISO_TEMP}"
 
