@@ -19,7 +19,7 @@ sg_list() {
 			indent="			"
 		elif [ ${#cname} -lt 16 ]; then
 			indent="		"
-		elif [ ${cname} -lt 24 ]; then
+		elif [ ${#cname} -lt 24 ]; then
 			indent="	"
 		else
 			indent=" "
