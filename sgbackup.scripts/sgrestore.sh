@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# (C) 2021,2022 Christian Moser
+# License: Public Domain
+
 root_dir=${0%/sgrestore.sh}
 conf_dir="${root_dir}/sgconf"
 backup_dir="${root_dir}/SaveGames"
