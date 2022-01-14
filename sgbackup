@@ -1,5 +1,5 @@
 #!/bin/sh
-# Version 0.2.0
+# Version 0.2.3
 # (C) 2021,2022 Christian Moser
 # License: Public Domain
 
@@ -456,7 +456,7 @@ case $sg_backup_mode in
 			sg_delete_savegames "$1"
 			shift
 			
-		done:
+		done
 		;;
 	D)
 		if [ $# -eq 0 ]; then
