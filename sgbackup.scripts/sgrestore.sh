@@ -55,10 +55,11 @@ sg_restore() {
 	cname=$1
 	conf="${cname}.conf"
 	sgconf="${conf_dir}/${conf}"
+
 	if [ ! -f "${sgconf}" ]; then
 		echo "Configuration for '$cname' not found!" >&2
 		return 1
-	fii
+	fi
 	source "${sgconf}"
 	echo "----> restore '$NAME' <----"
 	if [ -f "${backup_dir}/${SGNAME}.tar.xz.sha256" ]; then

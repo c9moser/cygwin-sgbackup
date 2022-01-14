@@ -126,10 +126,17 @@ for i in `cat ${SG_LIST} | sort`; do
 				echo "Checksum for file \"${f}\" not ok!" >&2
 				continue
 			fi
-			cp -v "${BACKUPDIR}/${file}.sha256" "${SG_ISO_TEMP}/${sg_iso_dir}/${file}.sha256"
 			cd "${pwdir}"
+
+			cp -v "${BACKUPDIR}/${file}" "${SG_ISO_TEMP}/${sg_iso_dir}/${file}"
+			cd "${SG_ISO_TEMP}/${sg_iso_dir}"
+			sha256sum --tag "${file}" > "${file}.sha256"
+			cd "${pwdir}"
+		else
+			cp -v "${BACKUPDIR}/${file}" "${SG_ISO_TEMP}/${sg_iso_dir}/${file}"
+			cd "${SG_ISO_TEMP}/${sg_iso_dir}"
+			sha256sum --tag "${file}" > "${file}.tar.xz"
 		fi
-		cp -v "${BACKUPDIR}/${file}" "${SG_ISO_TEMP}/${sg_iso_dir}/${file}"
 	elif [ -f "${BACKUP_DIR}/${SGNAME}/${SGNAME}.latest.tar.xz" ]; then
 		file="${SGNAME}.latest.tar.xz"
 		if [ -f "${BACKUPDIR}/${SGNAME}/${file}.sha256" ]; then
@@ -141,9 +148,17 @@ for i in `cat ${SG_LIST} | sort`; do
 				continue
 			fi
 			cd "${pwdir}"
-			cp -vL "${BACKUP_DIR}/${SGNAME}/${file}.sha256" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz.sha256"
+
+			cp -vL "${BACKUP_DIR}/${SGNAME}/${file}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
+			cd "${SG_ISO_TEMP}/${sg_iso_dir}"
+			sha256sum --tag "${SGNAME}.tar.xz" > "${SGNAME}.tar.xz.sha256"
+			cd "$pwdir"
+		else
+			cp -vL "${BACKUP_DIR}/${SGNAME}/${file}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
+			cd "${SG_ISO_TEMP}/${sg_iso_dir}"
+			sha256sum --tag "${SGNAME}.tar.xz" > "${SGNAME}.tar.xz.sha256"
+			cd "${pwdir}"
 		fi
-		cp -vL "${BACKUP_DIR}/${SGNAME}/${file}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
 	else
 		for f in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
 			file=${f#${BACKUPDIR}/${SGNAME}/}
@@ -155,11 +170,19 @@ for i in `cat ${SG_LIST} | sort`; do
 					cd "${pwdir}"
 					continue
 				fi
+
+				cp -v "${f}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
+				cd "${SG_ISO_TEMP}/${sg_iso_dir}"
+				sha256sum --tag ${SGNAME}.tar.xz > ${SGNAME}.tar.xz.sha256
 				cd "${pwdir}"
-				cp -v "${f}.sha256" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz.sha256"
+				break
+			else
+				cp -v "${f}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
+				cd "${SG_ISO_TEMP}/${sg_iso_dir}"
+				sha256sum --tag "${SGNAME}.tar.xz" > "${SGNAME}.tar.xz.sha256"
+				cd "${pwdir}"
+				break
 			fi
-			cp -v "${f}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
-			break
 		done
 	fi
 
