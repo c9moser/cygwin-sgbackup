@@ -7,7 +7,7 @@ SHAREDSTATEDIR="${PREFIX}/share/sgbackup"
 SCRIPTDIR="${SHAREDSTATEDIR}/scripts"
 CONFIDR="${ETCDIR}/sgbackup.config"
 SGCONF="${ETCDIR}/sgbackup.conf"
-INSTALLROOT="${0%/setup.sh}"
+INSTALLROOT="${0%/install.sh}"
 WRITE_CONF="YES"
 
 echo -n "Do you want to install sgbackup for all users? [y/n]? "
