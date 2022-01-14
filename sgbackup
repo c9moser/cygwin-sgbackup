@@ -456,7 +456,7 @@ case $sg_backup_mode in
 			sg_delete_savegames "$1"
 			shift
 			
-		done
+		done:
 		;;
 	D)
 		if [ $# -eq 0 ]; then
@@ -530,6 +530,7 @@ case $sg_backup_mode in
 		for i in `cat $sglist | sort`; do
 			sg_restore "$i"
 		done
+		rm -v "${sglist}"
 		sg_runtime
 		exit
 		;;

@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# (C) 2021,2022 Christian Moser
+# LICENSE: Public Domain
+# VERSION 0.2.0
+
 SG_ROOT_DIR=${0%/sgbackup-mkiso}
 
 BACKUPDIR="${HOME}/backup/SaveGames"
@@ -22,6 +26,9 @@ fi
 if [ -f "${HOME}/.sgbackup.conf" ]; then
 	source "${HOME}/.sgbackup.conf"
 fi
+
+SG_USER_CONF_DIR="${HOME}/.sgbackup.config"
+SG_LIST="/tmp/`whoami`.sgbackup-mkiso.lst"
 
 sg_iso_conf_dir="${SG_ISO_TEMP}/sgconf"
 sg_iso_dir="SaveGames"
@@ -69,7 +76,6 @@ while :; do
 	esac
 done
 
-
 if [ ! -d "${SG_ISO_TEMP}/${sg_iso_dir}" ]; then
 	mkdir -pv "${SG_ISO_TEMP}/${sg_iso_dir}"
 fi
@@ -77,33 +83,98 @@ fi
 if [ ! -d "${sg_iso_conf_dir}" ]; then
 	mkdir -pv "${sg_iso_conf_dir}"
 fi
+if [ -f "${SG_LIST}" ]; then
+	rm -v ${SG_LIST}
+fi
 
+for i in "${SG_USER_CONF_DIR}"/*.conf; do
+	conf="${i#${SG_USER_CONF_DIR}/}"
+	sgid="${conf%.conf}"
+	echo "$sgid" >> "${SG_LIST}"
+done
 for i in ${SG_CONF_DIR}/*.conf; do
-	source "$i"
+	conf="${i#${SG_CONF_DIR}/}"
+	sgid="${conf%.conf}"
+
+	if [ "`cat $SG_LIST | grep -x $sgid`" = "$sgid" ]; then
+		continue
+	fi
+	echo "${sgid}" >> "$SG_LIST"
+done
+
+pwdir="`pwd`"
+
+for i in `cat ${SG_LIST} | sort`; do
+	if [ -f "${SG_USER_CONF_DIR}/${i}.conf" ]; then
+		source "${SG_USER_CONF_DIR}/${i}.conf"
+		userconf="YES"
+	elif [ -f "${SG_CONF_DIR}/${i}.conf" ]; then
+		source "${SG_CONF_DIR}/${i}.conf"
+		userconf="NO"
+	else
+		echo "NO CONFIGURATION FOR \"${i}\" FOUND!" >&2
+		continue
+	fi
+
 	if [ -f "${BACKUPDIR}/${SGNAME}.tar.xz" ]; then
-		 cp -v "${BACKUPDIR}/${SGNAME}.tar.xz" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
-			 && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
-  	elif [ -h "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" ]; then
-		cp -vL "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
-			&& cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
-	else 
-		
-		for x in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
-			if [ -f "${x}" ]; then
-				cp -v "${x}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz" \
-				       && cp -v "${i}" "${sg_iso_conf_dir}/${i#${SG_CONF_DIR}/}"
-				break
+		file="${SGNAME}.tar.xz"
+		if [ -f "${BACKUPDIR}/${file}.sha256" ]; then
+			cd "${BACKUPDIR}"
+			sha256sum -c ${file}.sha256
+			if [ $? -ne 0 ]; then
+				cd "${pwdir}"
+				echo "Checksum for file \"${f}\" not ok!" >&2
+				continue
 			fi
+			cp -v "${BACKUPDIR}/${file}.sha256" "${SG_ISO_TEMP}/${sg_iso_dir}/${file}.sha256"
+			cd "${pwdir}"
+		fi
+		cp -v "${BACKUPDIR}/${file}" "${SG_ISO_TEMP}/${sg_iso_dir}/${file}"
+	elif [ -f "${BACKUP_DIR}/${SGNAME}/${SGNAME}.latest.tar.xz" ]; then
+		file="${SGNAME}.latest.tar.xz"
+		if [ -f "${BACKUPDIR}/${SGNAME}/${file}.sha256" ]; then
+			cd "${BACKUPDIR}/${SGNAME}"
+			sha256sum -c "${file}.sha256"
+			if [ $? -ne 0 ]; then
+				echo "Checksum for file \"${file}\" not ok!" >&2
+				cd "${pwdir}"
+				continue
+			fi
+			cd "${pwdir}"
+			cp -vL "${BACKUP_DIR}/${SGNAME}/${file}.sha256" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz.sha256"
+		fi
+		cp -vL "${BACKUP_DIR}/${SGNAME}/${file}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
+	else
+		for f in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
+			file=${f#${BACKUPDIR}/${SGNAME}/}
+			if [ -f "${f}.sha256" ]; then
+				cd "${BACKUPDIR}/${SGNAME}"
+				sha256sum -c "${file}.sha256"
+				if [ $? -ne 0 ]; then
+					echo "Ckesum for file \"$file\" not ok!" >&2
+					cd "${pwdir}"
+					continue
+				fi
+				cd "${pwdir}"
+				cp -v "${f}.sha256" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz.sha256"
+			fi
+			cp -v "${f}" "${SG_ISO_TEMP}/${sg_iso_dir}/${SGNAME}.tar.xz"
+			break
 		done
 	fi
-	#for x in "${BACKUPDIR}/${SGNAME}".*.tar.xz; do
-	#	cp -v "$x" "${SG_ISO_TEMP}/${i#${BACKUPDIR}/}"
-	#done
+
+	if [ "$userconf" = "YES" ]; then
+		cp -v "${SG_USER_CONF_DIR}/${i}.conf" "${sg_iso_conf_dir}/${i}.conf"
+	else
+		cp -v "${SG_CONF_DIR}/${i}.conf" "${sg_iso_conf_dir}/${i}.conf"
+	fi
 done
+
 cp -v "${SG_SCRIPT_DIR}/sgrestore.sh" "${SG_ISO_TEMP}/sgrestore.sh" \
 	&& chmod -v ugo+rx "${SG_ISO_TEMP}/sgrestore.sh"
 
 mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG_ISO_TEMP}"
 
-rm -Rv ${SG_ISO_TEMP}
+rm -v "${SG_LIST}"
+rm -Rv "${SG_ISO_TEMP}"
 
