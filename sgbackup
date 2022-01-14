@@ -154,7 +154,7 @@ sg_delete_savegames() {
 }
 
 sg_list() {
-	sglist="/tmp/`whoami`.sgabckup.lst"
+	sglist="/tmp/`whoami`.sgbackup.lst"
 	if [ -f "$sglist" ]; then
 		rm "$sglist"
 	fi
