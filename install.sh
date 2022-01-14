@@ -12,7 +12,7 @@ WRITE_CONF="YES"
 
 echo -n "Do you want to install sgbackup for all users? [y/n]? "
 read install
-i
+
 if [ "x$install" = "xn" -o "x$install" = "xN" -o "x$install" = "xno" ] ; then
 	PREFIX="$HOME"
 	BINDIR="$HOME/bin"
@@ -61,7 +61,7 @@ if [ "$WRITE_CONF" = "YES" ]; then
 fi
 
 echo ""
-echo "Do you want to install \${game}.conf files? [y/n/a]"
+echo -n "Do you want to install \${game}.conf files? [y/n/a]"
 read installconf
 
 if [ "x${installconf}" = "xn" -o "x${installconf}" = "xN" -o "x${installconf}" = "xno" ]; then
@@ -69,7 +69,7 @@ if [ "x${installconf}" = "xn" -o "x${installconf}" = "xN" -o "x${installconf}" =
 elif [ "x${installconf}" = "xa" -o x"${installconf}" = "xA" ]; then
 	for i in "${INSTALLROOT}/sgbackup.config"/*.conf; do
 		source "$i"
-		echo "Install config for game '$NAME'? [y/n] "
+		echo -n "Install config for game '$NAME'? [y/n] "
 		read instconf
 		if [ "x$instconf" = "n" -o "x$instconf" = "N" ];	then
 			continue
