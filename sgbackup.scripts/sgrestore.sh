@@ -2,7 +2,9 @@
 
 root_dir=${0%/sgrestore.sh}
 conf_dir="${root_dir}/sgconf"
+backup_dir="${root_dir}/SaveGames"
 sg_restore_mode="r"
+pwdir="`pwd`"
 
 sg_list() {
 	for i in `ls "${conf_dir}"/*.conf | sort`; do
@@ -52,9 +54,19 @@ sg_restore() {
 	if [ ! -f "${sgconf}" ]; then
 		echo "Configuration for '$cname' not found!" >&2
 		return 1
-	fi
+	fii
 	source "${sgconf}"
 	echo "----> restore '$NAME' <----"
+	if [ -f "${backup_dir}/${SGNAME}.tar.xz.sha256" ]; then
+		cd "${backup_dir}"
+		sha256sum -c "${SGNAME}.tar.xz.sha256"
+		if [ $? -ne 0 ]; then
+			echo "Cheksum for \"${SGNAME}.tar.xz\" not ok!" >&2
+			cd "$pwdir"
+			return 1
+		fi
+		cd "$pwdir"
+	fi
 	tar -xJvf "${root_dir}/SaveGames/${SGNAME}.tar.xz" -C "${SGROOT}"
 }
 
