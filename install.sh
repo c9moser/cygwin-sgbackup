@@ -1,11 +1,15 @@
 #!/bin/sh
 
+# (c) 2021,2022 Christian Moser
+# LICNENSE: Public Domain
+# Version: 0.2.3
+
 PREFIX="/usr/local"
 BINDIR="${PREFIX}/bin"
 ETCDIR="${PREFIX}/etc"
 SHAREDSTATEDIR="${PREFIX}/share/sgbackup"
 SCRIPTDIR="${SHAREDSTATEDIR}/scripts"
-CONFIDR="${ETCDIR}/sgbackup.config"
+CONFDIR="${ETCDIR}/sgbackup.config"
 SGCONF="${ETCDIR}/sgbackup.conf"
 INSTALLROOT="${0%/install.sh}"
 WRITE_CONF="YES"
