@@ -25,6 +25,8 @@ fi
 sg_backup_mode="c"
 sg_start_datetime="`date \"+%d.%m.%Y at %H:%M:%S\"`"
 sg_start="`date +%s`"
+sg_list_files="NO"
+sg_listfile=""
 
 sg_backup() {
 	sgid="$1"
@@ -54,6 +56,9 @@ sg_backup() {
 	ln -snfv "${latest}.sha256" "${SGNAME}.latest.tar.xz.sha256"
 	cd "$pwdir"
 
+	if [ "$sg_list_files" = "YES" ]; then
+		echo "${file#${BACKUPDIR}/}" >> "$sg_listfile"
+	fi
 	count=0
 	if [ $MAX_BACKUP -gt 0 ]; then
 		for i in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
@@ -91,6 +96,11 @@ sg_final_backup() {
 	tar -cJvf "$file" -C "$SGROOT" "$SGDIR"
 	cd "${BACKUPDIR}"
 	sha256sum -b --tag "${SGNAME}.tar.xz" > "${SGNAME}.tar.xz.sha256"
+
+	if [ "$sg_list_files" = "YES" ];then
+		echo "${SGNAME}.tar.xz" >> "$sg_listfile"
+	fi
+	
 	cd "$pwdir"
 
 	if [ ! -d "${SG_USER_CONF_DIR}" ]; then
@@ -247,7 +257,9 @@ sg_restore() {
 sg_print_help() {
 	echo USAGE
 	echo =====
-	echo "  sgbackup [-a|-r|-R]"
+	echo "  sgbackup [-L listfile] -a"
+	echo "  sgbackup [-L listfile] args ..."
+	echo "  sgbackup -r|-R"
 	echo "  sgbackup [-c|-d|-D|-f|-n|-r] args ..."
 	echo "  sgbackup -h"
 	echo "  sgbackup -l"
@@ -314,7 +326,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # parse args
-args=`getopt acdDfhlnrR $*`
+args=`getopt acdDfhlL:nrR $*`
 if [ $? -ne 0 ]; then
 	sg_print_help
 	exit 1
@@ -360,6 +372,11 @@ while :; do
 			sg_list
 			shift
 			exit
+			;;
+		-L)
+			sg_list_files="YES"
+			sg_listfile="$2"
+			shift; shift
 			;;
 		-n)
 			sg_backup_mode="n"
