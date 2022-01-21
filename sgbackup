@@ -25,8 +25,8 @@ fi
 sg_backup_mode="c"
 sg_start_datetime="`date \"+%d.%m.%Y at %H:%M:%S\"`"
 sg_start="`date +%s`"
-sg_list_files="NO"
-sg_listfile=""
+: ${sg_list_files:="NO"}
+: ${SG_LISTFILE:="${BACKUPDIR}/backup-files.lst"}
 
 sg_backup() {
 	sgid="$1"
@@ -57,7 +57,7 @@ sg_backup() {
 	cd "$pwdir"
 
 	if [ "$sg_list_files" = "YES" ]; then
-		echo "${file#${BACKUPDIR}/}" >> "$sg_listfile"
+		echo "${file#${BACKUPDIR}/}" >> "$SG_LISTFILE"
 	fi
 	count=0
 	if [ $MAX_BACKUP -gt 0 ]; then
@@ -98,7 +98,7 @@ sg_final_backup() {
 	sha256sum -b --tag "${SGNAME}.tar.xz" > "${SGNAME}.tar.xz.sha256"
 
 	if [ "$sg_list_files" = "YES" ];then
-		echo "${SGNAME}.tar.xz" >> "$sg_listfile"
+		echo "${SGNAME}.tar.xz" >> "$SG_LISTFILE"
 	fi
 	
 	cd "$pwdir"
@@ -375,7 +375,7 @@ while :; do
 			;;
 		-L)
 			sg_list_files="YES"
-			sg_listfile="$2"
+			SG_LISTFILE="$2"
 			shift; shift
 			;;
 		-n)
