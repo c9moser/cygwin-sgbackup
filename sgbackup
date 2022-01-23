@@ -273,6 +273,7 @@ sg_print_help() {
 	echo "  -f        Final backup of save games"
 	echo "  -h        Print help"
 	echo "  -l        List installed save games"
+	echo "  -L file   Write new savegame backups to file"
 	echo "  -n        Show full name of the game"
 	echo "  -r        Restore latest save game 'name'"
 	echo "  -R        Restore all save games"
@@ -284,16 +285,22 @@ sg_print_help() {
 	echo "  SGROOT      Save Games root directory"
 	echo "  SGDIR       Save Games directory"
 	echo "  SG_NO_AUTO  Set to \"YES\" if you want to exclude"
-	echo "              saves from '-a' backup." 
+	echo "              saves from '-a' backup."
 }
 
 sg_print_name() {
 	sgconf="${SG_CONF_DIR}/${1}.conf"
-	if [ ! -f "${sgconf}" ]; then
+	userconf="${SG_USER_CONF_DIR}/${1}.conf"
+
+	if [ -f "$userconf" ]; then
+		source "$userconf"
+	elif [ -f "$sgconf" ]; then
+		source "$sgconf"
+	else
 		echo "No configuration for '$1' found!" >&2
 		return
 	fi
-	source "$sgconf"
+
 	if [ ${#1} -lt 8 ]; then
 		indent="			"
 	elif [ ${#1} -lt 16 ]; then
