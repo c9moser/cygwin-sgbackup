@@ -46,6 +46,7 @@ sg_print_help() {
 }
 
 # parse options
+
 args=`getopt ho: $*`
 if [ $? -ne 0 ]; then
 	sg_print_help
@@ -75,6 +76,10 @@ while :; do
 			;;
 	esac
 done
+
+sg_start="`date +%s`"
+
+echo "====> sgbackup-mkiso started on `date +%d.%m.%Y` at `date %H:%M:%S` <===="
 
 if [ ! -d "${SG_ISO_TEMP}/${sg_iso_dir}" ]; then
 	mkdir -pv "${SG_ISO_TEMP}/${sg_iso_dir}"
@@ -179,4 +184,8 @@ mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG
 
 rm -v "${SG_LIST}"
 rm -Rv "${SG_ISO_TEMP}"
+
+sg_stop="`date +%s`"
+
+echo "====> sgbackup-mkiso finished in $(( $sg_stop - $sg_stop )) seconds <===="
 
