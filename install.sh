@@ -54,6 +54,7 @@ fi
 
 cp -v "${INSTALLROOT}/sgbackup" "${BINDIR}/sgbackup"
 cp -v "${INSTALLROOT}/sgbackup-mkiso" "${BINDIR}/sgbackup-mkiso"
+cp -v "${INSTALLROOT}/sgbackup-ftp" "${BINDIR}/sgbackup-ftp"
 cp -v "${INSTALLROOT}/README.md" "${SHAREDSTATEDIR}/README.md"
 cp -v "${INSTALLROOT}/INSTALL" "${SHAREDSTATEDIR}/INSTALL"
 cp -v "${INSTALLROOT}/LICENSE" "${SHREDSTATEDIR}/LICENSE"

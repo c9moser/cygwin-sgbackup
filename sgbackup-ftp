@@ -1,0 +1,203 @@
+#! /bin/sh
+
+# (C) 2022 Christian Moser
+# License: Public Domain
+# Version: 0.3.0
+
+BACKUPDIR="${HOME}/backup/SaveGames"
+SG_CONF_DIR="${0%/sgbackup-ftp}/sgbackup.config"
+SG_USER_CONF_DIR="${HOME}/.sgbackup.config"
+SG_FTP_DIR="/backup/SaveGames"
+SG_FTP_USER="anonymous"
+SG_FTP_PASSWORD="`whoami`@${HOSTNAME}"
+SG_FTP_PORT=21
+
+if [ -f /etc/sgbackup.conf ]; then
+	source /etc/sgbackup.conf
+fi
+if [ -f /usr/local/etc/sgbackup.conf ]; then
+	source /usr/local/etc/sgbackup.conf
+fi
+if [ -f "${HOME}/.sgbackup.conf" ]; then
+	source "${HOME}/.sgbackup.conf"
+fi
+
+
+sg_ftp_backup_dir="NO"
+
+: ${sg_ftp_backup_list:=NO}
+: ${SG_LISTFILE:=${BACKUPDIR}/backup-files.lst}
+
+sg_ftp_backup() {
+	sgid="$1"
+	if [ -f "${SG_USER_CONF_DIR}/${sgid}.conf" ]; then
+		source "${SG_USER_CONF_DIR}/${sgid}.conf"
+	elif [ -f "${SG_CONF_DIR}/${sgid}.conf" ]; then
+		source "${SG_CONF_DIR}/${sgid}.conf"
+	else
+		echo "NO CONFIGURATION FOR \"$sgid\" FOUND!" >&2
+		return 2
+	fi
+
+	if [ -f "${BACKUPDIR}/${SGNAME}.tar.xz" ]; then
+		sgfile="${BACKUPDIR}/${SGNAME}.tar.xz"
+		if [ -f "${sgfile}.sha256" ]; then
+			csfile="${sgfile}.sha256"
+		else
+			csfile=""
+		fi
+		rdir="${SG_FTP_DIR}"
+	else
+		if [ $sg_ftp_backup_dir ]; then
+			echo "[FTPPUT (DIR)] $SGNAME"
+			ncftpput -V -u "$SG_FTP_USER" -p "$SG_FTP_PASSWORD" \
+				-P $SG_FTP_PORT -R "$SG_FTP_HOST" \
+				"$SG_FTP_DIR" "${BACKUPDIR}/${SGNAME}"
+			return $?
+		fi
+		for i in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
+			sgfile="$i"
+			if [ "$sgfile" = "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" ]; then
+				continue
+			fi
+			if [ -f "${sgfile}.sha256" ]; then
+				csfile="${sgfile}.sha256"
+			else
+				csfile=""
+			fi
+			rdir="${SG_FTP_DIR}/${SGNAME}"
+			break
+		done
+	fi
+	echo "[FTPPUT] $SGFILE"
+	if [ -n "$csfile" ]; then
+		echo "[FTPPUT] $csfile"
+	fi
+	ncftpput -V -u "$SG_FTP_USER" -p "$SG_FTP_PASSWORD" -P $SG_FTP_PORT \
+		"${SG_FTP_HOST}" "${rdir}" "${sgfile}" "${csfile}"
+	return $?
+
+}
+
+sg_ftp_listbackup() {
+	file="$1"
+	sgname="`echo \"$file\" | cut -d/ -f1`"
+	pwdir="`pwd`"
+	cd $BACKUPDIR
+
+	if [ "$sgname" = "$file" ]; then
+		$sgname="${file%.tar.xz}"
+		rdir="$SG_FTP_DIR"
+	else
+		rdir="${SG_FTP_DIR}/${sgname}"
+	fi
+	if [ -f "${file}.sha256" ]; then
+		csfile="${file}.sha256"
+	else
+		csfile=""
+	fi
+	
+	echo "[FTPPUT] $file"
+	if [ -n "$csfile" ]; then
+		echo "[FTPPUT] $csfile"
+	fi
+	ncftpput -V -u "$SG_FTP_USER" -p "$SG_FTP_PASSWORD" -P "$SG_FTP_PORT" \
+		"${SG_FTP_HOST}" "${rdir}" "${file}" "${csfile}"
+
+	cd "$pwdir"
+}
+
+print_help() {
+	echo "USAGE"
+	echo "====="
+	echo "  sgbackup-ftp [-h]"
+	echo "  sgbackup-ftp [-d remote-dir] [-H host] [-p password] [-P port]"
+        echo "               [-u user] -l listfile | -L"
+	echo "  sgbackup-ftp [-d remote-dir] [-D] [-H host] [-p password]"
+	echo "               [-P port] [-u user] args ..."
+}
+
+args=`getopt d:hH:Dl:Lp:P:u: $*`
+if [ $? -ne 0 ]; then
+	print_help
+	exit 2
+fi
+set -- $args
+
+while :; do
+	case $1 in
+		-d)
+			SG_FTP_DIR="$2"
+			shift; shift
+			;;
+		-D)
+			sg_ftp_backup_dir="YES"
+			shift
+			;;
+		-h)
+			print_help
+			exit 0
+			;;
+		-H)
+			SG_FTP_HOST="$2"
+			shift;shift
+			;;
+		-l)
+
+			SG_LISTFILE="$2"
+			sg_ftp_backup_list="YES"
+			shift; shift
+			;;
+		-L)
+			sg_ftp_backup_list="YES"
+			shift
+			;;
+		-p)
+			SG_FTP_PASSWORD="$2"
+			shift; shift
+			;;
+		-P)
+			SG_FTP_PORT="$2"
+			shift; shift
+			;;
+		-u)
+			SG_FTP_USER="$2"
+			shift; shift
+			;;
+		--)
+			shift; break
+			;;
+		*)
+			echo "UNKNOWN OPTION \"$1\"!"
+			print_help
+			exit 2
+			;;
+	esac
+done
+
+if [ "$sg_ftp_backup_list" != "YES" -a $# -eq 0 ]; then 
+	print_help
+	exit 2
+fi
+
+sg_start=`date +%s`
+
+echo "====> sgbackup-ftp started on `date +%d.%m.%Y` at `date +%H:%M:%S` <===="
+
+if [ "$sg_ftp_backup_list" = "YES" ]; then
+	if [ -f "$SG_LISTFILE" ]; then
+		while read lfile; do
+			sg_ftp_listbackup "$lfile"
+		done < "${SG_LISTFILE}"
+		rm "$SG_LISTFILE"
+	fi
+fi
+
+while [ $# -gt 0 ]; do
+	sg_ftp_backup $1
+	shift	
+done
+
+sg_end=`date +%s`
+echo "====> sgftp finihsed in $(( $sg_end - $sg_start )) seconds. <===="
+
