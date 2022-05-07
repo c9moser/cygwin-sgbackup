@@ -322,7 +322,7 @@ sg_runtime() {
 	[[ ${#hours} -eq 1 ]] && hours="0${hours}"
 	[[ ${#minutes} -eq 1 ]] && minutes="0${minutes}"
 	[[ ${#seconds} -eq 1 ]] && seconds="0${seconds}"
-	echo "'sgbackup' finihsed in ${hours}:${minutes}:${seconds}"
+	echo "'sgbackup' finished in ${hours}:${minutes}:${seconds}"
 }
 
 # if no arguments are passed form the command line 
