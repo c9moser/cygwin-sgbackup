@@ -2,7 +2,7 @@
 
 # (C) 2021,2022 Christian Moser
 # LICENSE: Public Domain
-# VERSION 0.2.4
+# VERSION 0.3.0
 
 SG_ROOT_DIR=${0%/sgbackup-mkiso}
 

@@ -2,7 +2,7 @@
 
 # (c) 2021,2022 Christian Moser
 # LICNENSE: Public Domain
-# Version: 0.2.3
+# Version: 0.3.0
 
 PREFIX="/usr/local"
 BINDIR="${PREFIX}/bin"
@@ -55,6 +55,7 @@ fi
 cp -v "${INSTALLROOT}/sgbackup" "${BINDIR}/sgbackup"
 cp -v "${INSTALLROOT}/sgbackup-mkiso" "${BINDIR}/sgbackup-mkiso"
 cp -v "${INSTALLROOT}/sgbackup-ftp" "${BINDIR}/sgbackup-ftp"
+cp -v "${INSTALLROOT}/sgbackup-burn-iso" "${BINDIR}/sgbackup-burn-iso"
 cp -v "${INSTALLROOT}/README.md" "${SHAREDSTATEDIR}/README.md"
 cp -v "${INSTALLROOT}/INSTALL" "${SHAREDSTATEDIR}/INSTALL"
 cp -v "${INSTALLROOT}/LICENSE" "${SHREDSTATEDIR}/LICENSE"

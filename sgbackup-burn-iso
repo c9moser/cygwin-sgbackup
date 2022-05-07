@@ -1,0 +1,99 @@
+#!/bin/sh
+# Author: Christian Moser
+# Script: sgbackup-burn-iso
+# License: GPL
+# Version: 0.3.0
+
+if [ -f /etc/sgbackup.conf ]; then
+	source /etc/sgbackup.conf
+fi
+if [ -f /usr/local/etc/sgbackup.conf ]; then
+	source /usr/local/etc/sgbackup.conf
+fi
+if [ -f "${HOME}/.sgabckup.conf" ]; then
+	source "${HOME}/.sgbackup.conf"
+fi
+
+: ${SG_BACKUP_DRIVE:=/dev/sr0}
+: ${SG_ISO_DIR:=${HOME}/SaveGames_ISO}
+: ${SG_ISO_GLOB:=SaveGames.iso}
+
+sg_print_help() {
+	echo "USAGE:"
+	echo "======"
+	echo "  sgbackup-burn-iso -h"
+	echo "  sgbackup-burn-iso [-b|-B][-d device]"
+}
+
+args=`getopt bBhd: $*`
+if [ $? -ne 0 ]; then
+	sg_print_help
+	exit 1
+fi
+set -- $args
+
+sg_blank_mode=""
+
+while :;do
+	case $1 in 
+		-b)
+			sg_blank_mode=fast
+			shift
+			;;
+		-B)
+			sg_blank_mode=all
+			shift
+			;;
+		-h)
+			sg_print_help
+			shift
+			exit
+			;;
+		-d)
+			SG_BACKUP_DRIVE=$2
+			shift; shift
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			echo "ILLEGAL ARGUMENT '$1'!" >&2
+			print_help
+			shift
+			exit -1
+			;;
+	esac
+done
+
+cnt=0
+while [ $cnt -lt 80 ]; do
+	echo -n "="
+	cnt=$(( $cnt + 1 ))
+done
+echo ""
+date +"%Y-%m-%d %H:%M:%S"
+start_time="`date +%s`"
+
+sg_iso_file=""
+
+for i in `ls ${SG_ISO_DIR}/${SG_ISO_GLOB} | sort -r`; do
+	if [ -f "$i" ]; then
+		sg_iso_file="$i"
+		break;
+	fi
+done
+
+if [ -z "$sg_iso_file" ]; then
+	echo "No ISO-file found!!!" >&2
+	exit 3
+else
+	if [ -n "$sg_blank_mode" ]; then
+		cdrecord -v blank=$sg_blank_mode dev=$SG_BACKUP_DRIVE
+	fi
+	cdrecord -v dev=$SG_BACKUP_DRIVE -driveropts=burnfree -multi "$sg_iso_file"
+fi
+
+end_time=`date +%s`
+
+echo "Finished in $(( $end_time - $start_time )) seconds"
