@@ -78,7 +78,7 @@ done
 
 sg_start="`date +%s`"
 
-echo "====> sgbackup-mkiso started on `date +%d.%m.%Y` at `date %H:%M:%S` <===="
+echo "====> sgbackup-mkiso started on `date +%d.%m.%Y` at `date +%H:%M:%S` <===="
 
 if [ ! -d "${SG_ISO_TEMP}/${sg_iso_dir}" ]; then
 	mkdir -pv "${SG_ISO_TEMP}/${sg_iso_dir}"
