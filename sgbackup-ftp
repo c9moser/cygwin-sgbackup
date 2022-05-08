@@ -199,5 +199,5 @@ while [ $# -gt 0 ]; do
 done
 
 sg_end=`date +%s`
-echo "====> sgftp finihsed in $(( $sg_end - $sg_start )) seconds. <===="
+echo "====> sgbackup-ftp finished in $(( $sg_end - $sg_start )) seconds. <===="
 
