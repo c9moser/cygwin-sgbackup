@@ -186,5 +186,5 @@ rm -Rv "${SG_ISO_TEMP}"
 
 sg_stop="`date +%s`"
 
-echo "====> sgbackup-mkiso finished in $(( $sg_stop - $sg_stop )) seconds <===="
+echo "====> sgbackup-mkiso finished in $(( $sg_stop - $sg_start )) seconds <===="
 
