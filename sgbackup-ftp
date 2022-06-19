@@ -7,7 +7,7 @@
 BACKUPDIR="${HOME}/backup/SaveGames"
 SG_CONF_DIR="${0%/sgbackup-ftp}/sgbackup.config"
 SG_USER_CONF_DIR="${HOME}/.sgbackup.config"
-SG_FTP_DIR="/backup/SaveGames"
+SG_FTP_DIR="SaveGames"
 SG_FTP_USER="anonymous"
 SG_FTP_PASSWORD="`whoami`@${HOSTNAME}"
 SG_FTP_PORT=21
