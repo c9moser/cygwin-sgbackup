@@ -2,7 +2,7 @@
 
 # (C) 2022 Christian Moser
 # License: Public Domain
-# Version: 0.3.0
+# Version: 0.3.1
 
 BACKUPDIR="${HOME}/backup/SaveGames"
 SG_CONF_DIR="${0%/sgbackup-ftp}/sgbackup.config"
@@ -48,33 +48,36 @@ sg_ftp_backup() {
 		fi
 		rdir="${SG_FTP_DIR}"
 	else
-		if [ $sg_ftp_backup_dir ]; then
+		if [ "$sg_ftp_backup_dir" = "YES" ]; then
 			echo "[FTPPUT (DIR)] $SGNAME"
 			ncftpput -V -u "$SG_FTP_USER" -p "$SG_FTP_PASSWORD" \
 				-P $SG_FTP_PORT -R "$SG_FTP_HOST" \
 				"$SG_FTP_DIR" "${BACKUPDIR}/${SGNAME}"
 			return $?
-		fi
-		for i in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
-			sgfile="$i"
-			if [ "$sgfile" = "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" ]; then
-				continue
-			fi
-			if [ -f "${sgfile}.sha256" ]; then
-				csfile="${sgfile}.sha256"
-			else
-				csfile=""
-			fi
-			rdir="${SG_FTP_DIR}/${SGNAME}"
-			break
-		done
-	fi
-	echo "[FTPPUT] $SGFILE"
-	if [ -n "$csfile" ]; then
-		echo "[FTPPUT] $csfile"
-	fi
-	ncftpput -V -u "$SG_FTP_USER" -p "$SG_FTP_PASSWORD" -P $SG_FTP_PORT \
-		"${SG_FTP_HOST}" "${rdir}" "${sgfile}" "${csfile}"
+		else
+    		for i in `ls "${BACKUPDIR}/${SGNAME}/${SGNAME}".*.tar.xz | sort -r`; do
+	    		sgfile="$i"
+		    	if [ "$sgfile" = "${BACKUPDIR}/${SGNAME}/${SGNAME}.latest.tar.xz" ]; then
+			    	continue
+    			fi
+	    		if [ -f "${sgfile}.sha256" ]; then
+		    		csfile="${sgfile}.sha256"
+			    else
+				    csfile=""
+    			fi
+	    		rdir="${SG_FTP_DIR}/${SGNAME}"
+		    	break
+    		done
+    	    echo "[FTPPUT] $sgfile"
+            ncftpput -V -u "$SG_FTP_USER" -p "$SG_FTP_PASSWORD" -P $SG_FTP_PORT \
+                "${SG_FTP_HOST}" "${rdir}" "${sgfile}"
+	        if [ -n "$csfile" ]; then
+		        echo "[FTPPUT] $csfile"
+        	    ncftpput -V -u "$SG_FTP_USER" -p "$SG_FTP_PASSWORD" -P $SG_FTP_PORT \
+	    	      "${SG_FTP_HOST}" "${rdir}" "${csfile}"
+            fi
+        fi
+    fi
 	return $?
 
 }

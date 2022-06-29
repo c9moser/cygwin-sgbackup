@@ -1,0 +1,190 @@
+
+Windows 8 6.2
+AMD64
+Wow64Process
+Nero API version: 24.5.2.10
+Using interface version: 10.1.0.0
+Installed in: C:\Program Files (x86)\Nero\Nero Platinum Suite\Nero Burning ROM\
+Application: nero\NeroCMD
+Internal Version: 24,5,2,10
+
+Recorder         : <HL-DT-ST DVDRAM GH24NSD5>     FW version: LV00 - HA 1 TA 0 - 24.5.2.10
+ Device bus      :  <Serial ATA>                  HA 1
+ Host system bus :  <S-ATA> 
+ Drive buffer    :  512kB
+ Bus Type        :  via Inquiry data
+
+=== Scsi-Device-Map ===
+                     : HL-DT-STDVDRAM GH24NSD5 LV00  storahci Port 0 ID 0  DMA: Off
+                     : ASUS    BW-16D1HT       3.10  storahci Port 0 ID 0  DMA: Off
+                     :         CT4000MX500SSD1       storahci Port 1 ID 0  DMA: Off
+                     : SanDisk SSD PLUS 2000GB       storahci Port 1 ID 0  DMA: Off
+                     : NVMe    PNY CS2130 1TB S3522  stornvme Port 3 ID 0  DMA: Off
+                     : NVMe    PNY CS2130 1TB S3521  stornvme Port 4 ID 0  DMA: Off
+
+=== CDRom-Device-Map ===
+HL-DT-ST DVDRAM GH24NSD5   G:   CdRom0
+ASUS BW-16D1HT             H:   CdRom1
+=======================
+
+AutoRun : 1
+Excluded drive IDs: 
+WriteBufferSize: 83886080 (0) Byte
+BUFE           : 0
+Physical memory     : 2047MB (2097151kB)
+Free physical memory: 2047MB (2097151kB)
+Memory in use       : 14 %
+Uncached PFiles: 0x0
+Global Bus Type: default (0)
+Check supported media : Disabled (0) 
+
+19.6.2022
+NeroAPI
+22:58:20	#1 Text 0 File SCSIPTICommands.cpp, Line 617
+	LockMCN - completed sucessfully for IOCTL_STORAGE_MCN_CONTROL
+	
+22:58:20	#2 PHASE 214 File APIProgress.cpp, Line 276
+	Generation of disc structures started
+	
+22:58:20	#3 PHASE 215 File APIProgress.cpp, Line 276
+	Generation of disc structures completed
+	
+22:58:20	#4 Text 0 File Burncd.cpp, Line 4834
+	Turn on Disc-At-Once, using DVD media
+	
+22:58:20	#5 PHASE 74 File APIProgress.cpp, Line 260
+	Checking discs
+	
+22:58:20	#6 Text 0 File SCSIPTICommands.cpp, Line 404
+	SPTILockVolume - completed successfully for FSCTL_LOCK_VOLUME
+	
+22:59:01	#7 Text 0 File Cdrdrv.cpp, Line 12325
+	DriveLocker: UnLockVolume completed
+	
+22:59:04	#8 Text 0 File DlgWaitCD.cpp, Line 342
+	[G: DVDRAM GH24NSD5 ] Last possible write address on media:  2297887
+	Last address to be written:            1022493
+	
+22:59:04	#9 Text 0 File DlgWaitCD.cpp, Line 354
+	[G: DVDRAM GH24NSD5 ] Write in overburning mode: NO
+	
+22:59:04	#10 Text 0 File DlgWaitCD.cpp, Line 3212
+	Recorder: HL-DT-ST DVDRAM GH24NSD5, Media type: DVD-RW
+	 Disc Manufacturer ID: <MCC 01> <RW4X  >
+	 Disc Application Code: 2, Disc Physical Code: 214
+	
+22:59:04	#11 Text 0 File DlgWaitCD.cpp, Line 544
+	[G: DVDRAM GH24NSD5 ] >>> Protocol of DlgWaitCD activities: <<<
+	=========================================
+	This disc is not empty.
+		(Medium in drive: DVD-RW. Medium required by compilation: DVD R/RW; DVD DL; DVD-RAM.)
+	Accessing disc...
+		(Medium in drive: DVD-RW. Medium required by compilation: DVD R/RW; DVD DL; DVD-RAM.)
+	
+22:59:04	#12 Text 0 File ThreadedTransferInterface.cpp, Line 879
+	Setup items (after recorder preparation)
+	 0: TRM_DATA_MODE1 (2 - CD-ROM Mode 1, Joliet)
+	    2 indices, index0 (150) not provided
+	    original disc pos #0 + 1022494 (1022494) = #1022494/227:13.19
+	    not relocatable, disc pos for caching/writing not required/not required
+	    -> TRM_DATA_MODE1, 2048, config 0, wanted index0 0 blocks, length 1022494 blocks [G: HL-DT-ST DVDRAM GH24NSD5]
+	--------------------------------------------------------------
+	
+22:59:04	#13 Text 0 File ThreadedTransferInterface.cpp, Line 1095
+	Prepare [G: HL-DT-ST DVDRAM GH24NSD5] for write in CUE-sheet-DAO
+	DAO infos:
+	==========
+	 MCN: ""
+	 TOCType: 0x00; Session Closed, disc fixated
+	 Tracks 1 to 1:                                  Idx 0         Idx 1      Next Trk
+	   1: TRM_DATA_MODE1, 2048/0x00, FilePos             0             0    2094067712, ISRC ""
+	DAO layout:
+	===========
+	 ___Start_|____Track_|_Idx_|_CtrlAdr_|_____Size_|______NWA_|_RecDep__________
+	        0 |  lead-in |   0 |    0x41 |        0 |        0 | 0x00
+	        0 |        1 |   0 |    0x41 |        0 |        0 | 0x00
+	        0 |        1 |   1 |    0x41 |  1022494 |  1022494 | 0x00
+	  1022494 | lead-out |   1 |    0x41 |        0 |        0 | 0x00
+	MediaType: DVD-RW
+	
+22:59:04	#14 Text 0 File SCSIPTICommands.cpp, Line 404
+	SPTILockVolume - completed successfully for FSCTL_LOCK_VOLUME
+	
+22:59:04	#15 Text 0 File Burncd.cpp, Line 5732
+	Caching options: cache CDRom or Network-No, small files-Yes (<32KB)
+	
+22:59:04	#16 PHASE 24 File APIProgress.cpp, Line 276
+	Caching of files started
+	
+22:59:04	#17 Text 0 File Burncd.cpp, Line 5854
+	Cache writing successful.
+	
+22:59:04	#18 PHASE 25 File APIProgress.cpp, Line 276
+	Caching of files completed
+	
+22:59:04	#19 PHASE 36 File APIProgress.cpp, Line 276
+	Burn process started at 4x (5 540 KB/s)
+	
+22:59:04	#20 Text 0 File ThreadedTransferInterface.cpp, Line 2926
+	Verifying disc position of item 0 (not relocatable, no disc pos, no patch infos, orig at #0): write at #0
+	
+22:59:04	#21 Text 0 File DVDMinusRW.cpp, Line 273
+	Perform 'Quick Format' (type 15h) to set disc in 'Restricted Overwrite Mode'.
+	
+22:59:04	#22 PHASE 136 File APIProgress.cpp, Line 276
+	Prepare disc for burning
+	
+22:59:32	#23 PHASE 36 File APIProgress.cpp, Line 276
+	Burn process started at 4x (5 540 KB/s)
+	
+22:59:32	#24 Text 0 File ThreadedTransfer.cpp, Line 275
+	Pipe memory size 83836800
+	
+22:59:32	#25 PHASE 42 File APIProgress.cpp, Line 260
+	Writing lead-in
+	
+22:59:36	#26 PHASE 77 File APIProgress.cpp, Line 260
+	Writing tracks
+	
+23:05:47	#27 Text 0 File WriterStatus.cpp, Line 245
+	<G: HL-DT-ST DVDRAM GH24NSD5> start writing Lead-Out at LBA 1022494 (F9A1Eh), length 0 blocks
+	
+23:05:48	#28 PHASE 43 File APIProgress.cpp, Line 260
+	Writing lead-out
+	
+23:05:51	#29 PHASE 181 File APIProgress.cpp, Line 276
+	Writing lead-out...
+	
+23:05:51	#30 PHASE 181 File APIProgress.cpp, Line 276
+	Writing lead-out...
+	
+23:06:21	#31 Text 0 File DVDR.cpp, Line 3750
+	EndDAO: Last written address was 1022495 (F9A1Fh)Estimated time for 30mm Borders: 0min 00sec
+	
+23:06:21	#32 PHASE 201 File APIProgress.cpp, Line 276
+	This disc type cannot be closed
+	
+23:06:21	#33 Text 0 File DVDPlusDualLayer.cpp, Line 1464
+	SetDriveCaps: Set LAST LBA of layer 1 to 0
+	
+23:06:21	#34 PHASE 37 File APIProgress.cpp, Line 276
+	Burn process completed successfully at 4x (5 540 KB/s)
+	
+23:06:21	#35 PHASE 78 File APIProgress.cpp, Line 276
+	Data verification started
+	
+23:06:24	#36 Text 0 File ThreadedTransfer.cpp, Line 275
+	Pipe memory size 590400
+	
+23:09:47	#37 PHASE 80 File APIProgress.cpp, Line 276
+	Data verification completed successfully
+	
+23:09:47	#38 Text 0 File SCSIPTICommands.cpp, Line 454
+	SPTIDismountVolume - completed successfully for FSCTL_DISMOUNT_VOLUME
+	
+23:09:47	#39 Text 0 File Cdrdrv.cpp, Line 12325
+	DriveLocker: UnLockVolume completed
+	
+23:09:47	#40 Text 0 File SCSIPTICommands.cpp, Line 617
+	UnLockMCN - completed sucessfully for IOCTL_STORAGE_MCN_CONTROL
+	
