@@ -2,7 +2,7 @@
 
 # (C) 2022 Christian Moser
 # License: Public Domain
-# Version: 0.3.1
+# Version: 0.3.2
 
 BACKUPDIR="${HOME}/backup/SaveGames"
 SG_CONF_DIR="${0%/sgbackup-ftp}/sgbackup.config"
@@ -200,6 +200,10 @@ while [ $# -gt 0 ]; do
 	sg_ftp_backup $1
 	shift	
 done
+
+if [ "x$(declare -F sgbackup_ftp_post)" = "xsgbackup_ftp_post" ]; then
+    sgbackup_ftp_post
+fi
 
 sg_end=`date +%s`
 echo "====> sgbackup-ftp finished in $(( $sg_end - $sg_start )) seconds. <===="

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Version 0.3.0
+# Version 0.3.2
 # (C) 2021,2022 Christian Moser
 # License: Public Domain
 
@@ -325,6 +325,12 @@ sg_runtime() {
 	echo "'sgbackup' finished in ${hours}:${minutes}:${seconds}"
 }
 
+sg_post() {
+    if [ "x$(declare -F sgbackup_post)" = "xsgbackup_post" ]; then
+        sgbackup_post
+    fi
+}
+
 # if no arguments are passed form the command line 
 # print help and exit
 if [ $# -eq 0 ]; then
@@ -453,6 +459,7 @@ case $sg_backup_mode in
 		done
 
 		rm -v "${sglist}"
+        sg_post
 		sg_runtime
 		exit
 		;;
@@ -468,6 +475,7 @@ case $sg_backup_mode in
 			sg_backup "$1"
 			shift
 		done
+        sg_post
 		sg_runtime
 		;;
 	d)

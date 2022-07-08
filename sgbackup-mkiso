@@ -2,7 +2,7 @@
 
 # (C) 2021,2022 Christian Moser
 # LICENSE: Public Domain
-# VERSION 0.3.1
+# VERSION 0.3.2
 
 SG_ROOT_DIR=${0%/sgbackup-mkiso}
 
@@ -178,7 +178,7 @@ for i in `cat ${SG_LIST} | sort`; do
 	fi
 done
 
-if [ "$(declare -F sgbackup_mkiso_extra)" = "sgbackup_mkiso_extra" ]; then
+if [ "x$(declare -F sgbackup_mkiso_extra)" = "xsgbackup_mkiso_extra" ]; then
     sgbackup_mkiso_extra
 fi
 
@@ -189,6 +189,10 @@ mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG
 
 rm -v "${SG_LIST}"
 rm -Rv "${SG_ISO_TEMP}"
+
+if [ "x$(declare -F sgbackup_mkiso_post)" = "xsgbackup_mkiso_post" ]; then
+    sgbackup_mkiso_post
+fi
 
 sg_stop="`date +%s`"
 
