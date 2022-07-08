@@ -12,6 +12,8 @@ SG_ISO_FILE="/tmp/`whoami`.sgbackup.`date +%Y%m%d`.iso"
 SG_ISO_NAME="SAVEGAMES"
 SG_CONF_DIR="${SG_ROOT_DIR}/sgbackup.config"
 SG_SCRIPT_DIR="${SG_ROOT_DIR}/sgbackup.scripts"
+SG_ISO_GLOB="/tmp/`whoami`.sgbackup.*.iso"
+SG_MAX_ISO=0
 
 # Check for configuration
 if [ -f /etc/sgbackup.conf ]; then
@@ -189,6 +191,20 @@ mkisofs -J -R -l -udf -iso-level 4 -V "${SG_ISO_NAME}" -o "${SG_ISO_FILE}" "${SG
 
 rm -v "${SG_LIST}"
 rm -Rv "${SG_ISO_TEMP}"
+
+if [ $SG_MAX_ISO -gt 0 ]; then
+    iso_count=0;
+    for i in `ls "$SG_ISO_GLOB" | sort -r`; do
+        if [ $i = "`echo \"${SG_ISO_GLOB}\" | sed -e s/*/latest`" ]; then
+            continue
+        fi
+        
+        if [ $iso_count -gt $SG_MAX_ISO ]; then
+            rm -fv $i
+        fi
+        iso_count=$(( $iso_count + 1 ))
+    done
+fi
 
 if [ "x$(declare -F sgbackup_mkiso_post)" = "xsgbackup_mkiso_post" ]; then
     sgbackup_mkiso_post
