@@ -195,7 +195,7 @@ rm -Rv "${SG_ISO_TEMP}"
 if [ $SG_MAX_ISO -gt 0 ]; then
     iso_count=0;
     for i in `ls $SG_ISO_GLOB | sort -r`; do
-        if [ $i = "`echo \"${SG_ISO_GLOB}\" | sed -e s/*/latest`" ]; then
+        if [ $i = "`echo \"${SG_ISO_GLOB}\" | sed -e s/*/latest/`" ]; then
             continue
         fi
         
